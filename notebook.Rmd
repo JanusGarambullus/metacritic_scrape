@@ -115,6 +115,11 @@ dataset$description <- as.character(dataset$description)
 
 Alright, the dataset is pretty tidy with variables in the right format. I'm quite happy with this.
 
+Further work would try to find games/movies that are divisive in terms of ratings. For this, not only do I have to scrape all games and their respective information, but go into their reviews page and scrape all of the scores. This is relatively straightforward bacause I can append "/critic-reviews" to each URL and get a list of all scores as well as the corresponding title. 
+
+You can scrape: "h1 , #main .indiv"
+
+
 Questions: 
 
 Which studio produced the most games?
