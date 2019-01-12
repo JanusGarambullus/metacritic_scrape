@@ -1,0 +1,251 @@
+---
+title: "Metacritic Scraping"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(rvest)
+library(progress)
+library(lubridate)
+library(tidytext)
+library(plotly)
+```
+
+```{r}
+# Reading in pages and extracting hyperlinks
+result <- vector("list",10)
+
+for(i in 0:9) {
+  webpage <- read_html(paste0("https://www.metacritic.com/browse/games/release-date/available/ps4/metascore?page=", i))
+  loop_links <- webpage %>% html_nodes("#main .product_title a") %>% html_attr('href')
+  loop_links_proper <- paste0("https://www.metacritic.com", loop_links)
+  result[[i+1]] <- loop_links_proper
+}
+
+# Joining results into a single vector
+all_links <- unlist(result)
+```
+
+```{r}
+#game_page <- read_html("https://www.metacritic.com/game/playstation-4/wolfenstein-ii-the-new-colossus")
+```
+
+Before performing the loop, I first need to figure out how to store the results. I see that there are multiple ways to go about referring to the elements of a loop. One of them is naming the i itself the variable and the results list as well. The other way is leaving a numbered list, indices between 1 and the length, and referring to the name as myvector[i]. I'll try the first method.
+
+I can continue it after Naruto
+
+```{r}
+# Getting all the attributes
+
+final_result <- vector("list", 1812)
+names(final_result) <- all_links
+
+for(i in all_links) {
+#game_page <- read_html("https://www.metacritic.com/game/playstation-4/wolfenstein-ii-the-new-colossus")
+game_page <- read_html(i)
+
+title <- game_page %>% html_nodes("h1") %>% html_text()
+release_date <- game_page %>% html_nodes(".release_data .data") %>% html_text()
+developer <- game_page %>% html_nodes(".developer .data") %>% html_text()
+publisher <- game_page %>% html_nodes(".publisher a") %>% html_text()
+genre <- game_page %>% html_nodes(".product_genre .data") %>% html_text()
+score <- game_page %>% html_nodes(".positive span, .mixed span, .negative span") %>% html_text()
+review_count <- game_page %>% html_nodes(".highlight_metascore .count a") %>% html_text()
+description <- game_page %>% html_nodes(".data .blurb_expanded") %>% html_text()
+
+title <- ifelse(length(title) == 0, "Notapplicable", title)
+release_date <- ifelse(length(release_date) == 0, "Notapplicable", release_date)
+developer <- ifelse(length(developer) == 0, "Notapplicable", developer)
+publisher <- ifelse(length(publisher) == 0, "Notapplicable", publisher)
+genre <- ifelse(length(genre) == 0, "Notapplicable", genre)
+score <- ifelse(length(score) == 0, "Notapplicable", score)
+review_count <- ifelse(length(review_count) == 0, "Notapplicable", review_count)
+description <- ifelse(length(description) == 0, "Notapplicable", description)
+
+genre <- paste(genre, collapse = ', ')
+
+# Creating table entry from vectors
+final_result[[i]] <- data.frame(title, release_date, developer, publisher, genre, score, review_count, description)
+
+print(score)
+
+}
+```
+
+```{r}
+temp_results <- final_result
+```
+
+
+The loop got stopped at the 14th iteration. This means the scraping process is really fast as it only took around 30s to scrape 14 games.
+
+I got a bit stuck. I'm creating this data frame with each iteration, but when I get an empty value, I can't assemble my data frame. I need a way to check if my vector is empty, and if it is, need to put an "NA" as the value.
+
+I really need to invest in a progress bar for my loops. I have no way of knowing how far along I am. Since my indices are character vectors, I would need to name them as indices and refer to the position in my vector from my index. I'm gonna implement progress bars next time because this is a pain in the ass.
+
+This is an OK way to track progress, it prints the score so I can track how far along it is. I will use progress bars next time.
+
+Another thing to consider is skipping iterations if the for loop fails. In this case, I got a 404 error opening a site. Need to skip these errors.
+
+Let's carry on with the temp result.
+ 
+
+```{r}
+dataset <- do.call("rbind", temp_results)
+```
+
+The script is not perfect as it truncates the genre to a single value, something to look out for. Also, the description is taken as a single scraped category, which leaves a lot of values empty. I'm fairly happy with this overall. Time to clean up the data.
+
+696 of the 1607 games have missing descriptions, which is 43%. Not ideal but workable
+
+```{r}
+dataset$title <- as.character(dataset$title)
+dataset$release_date <- as.character(dataset$release_date)
+dataset$release_date <- mdy(dataset$release_date)
+dataset$developer <- as.character(dataset$developer)
+dataset$publisher <- as.character(dataset$publisher)
+dataset$genre <- as.character(dataset$genre)
+dataset$score <- as.numeric(as.character(dataset$score))
+dataset$review_count <- as.character(dataset$review_count)
+dataset$review_count <- gsub(" Critics", "", dataset$review_count)
+dataset$review_count <- as.numeric(dataset$review_count)
+dataset$description <- as.character(dataset$description)
+```
+
+Alright, the dataset is pretty tidy with variables in the right format. I'm quite happy with this.
+
+Questions: 
+
+Which studio produced the most games?
+
+```{r}
+dataset %>% count(developer) %>% arrange(desc(n))
+```
+Interestingly, Telltale games comes first. This is due to the episodic nature of their games.
+
+Who makes the best games?
+
+```{r}
+dataset %>% group_by(developer) %>% summarise(mean_score = mean(score), median_score = median(score), n = n()) %>% arrange(desc(mean_score))
+```
+
+Which genre receives the highest scores?
+
+```{r}
+dataset %>% group_by(genre) %>% summarise(mean_score = mean(score), median_score = median(score), n = n()) %>% arrange(desc(median_score)) 
+
+#  ggplot(aes(x = genre, y = median_score)) +
+#    geom_bar(stat = "identity") +
+#    ggtitle("Title") +
+#    coord_flip()
+```
+
+The most interesting part would be taking out the nondescipt titles, breaking down into words, score association and finding the words that are best correlated with high scores.
+
+```{r}
+dataset %>% count(description) %>% arrange(desc(n))
+```
+
+
+```{r}
+stripped_dataset <- dataset %>% filter(description != "Notapplicable")
+```
+
+So far so good, now I just need to unnest the words.
+
+```{r}
+words <- stripped_dataset %>% unnest_tokens(word, description)
+```
+
+```{r}
+words %>% group_by(word) %>% summarise(mean_score = mean(score), median_review_count = median(review_count), count = n()) %>% filter(count >= 30) %>% arrange(desc(mean_score))
+```
+
+Classic seems to have a higher average score, 80 games scoring in this category. Full has a really high score too. Overall, it is quite hard to distinguish between words associated with a single game and trends, but upon visual inspection, I noticed that the trends are very slightly observable. 
+
+This dataset is currently pretty good for checking the works of different developers and publishers and ranking them based on the quality of their titles.
+
+However, the dataset is currently difficult to use for searching games to play due to the restricted genre categories and the incomplete descriptions. 
+
+Besides, the Metacritic Website has a pretty extensive search tool that can narrow down games to genres with extensive arranging by several categories.
+
+```{r}
+dataset %>% ggplot(aes(x = score)) +
+  geom_density() +
+  ggtitle("Title")
+```
+
+We can see the cutoff at around 56 points where the 404 error was encountered. Nonetheless, this is a pretty complete picture. The distribution looks very normal with a mean of around 72.5 scores.
+
+```{r}
+dataset %>% ggplot(aes(x = review_count)) +
+  geom_density() +
+  ggtitle("Title")
+```
+
+The review count on the other hand shows a very strong right skew with a maximum of around 8 reviews.
+
+Let's investigate how review count and scores are associated.
+
+```{r}
+ggplotly(
+dataset %>% ggplot(aes(x = review_count, y = score, label = title)) +
+  geom_jitter(alpha = 0.2) +
+  ggtitle("Title")
+)
+```
+
+Up until the review count of around 70, I don't see a correlation between the number of reviews and score. However, as we go above the count of 75, the scores are beginning to get higher. These are most likely high profile, high quality AAA titles.
+
+```{r}
+ggplotly(
+dataset %>% ggplot(aes(x = release_date)) +
+  geom_density() +
+  ggtitle("Title")
+)
+```
+
+```{r}
+dataset %>% ggplot(aes(x = release_date, y = score)) +
+  geom_jitter() +
+  ggtitle("Title")
+```
+
+Let's define really good games by Metascores of above 85. Let's see how many games there are with this criteria over the years to assess how well gaming is doing.
+
+```{r}
+dataset %>% mutate(year = year(release_date), month = month(release_date)) %>% 
+  ggplot(aes(x = as.factor(year), y = score, fill = as.factor(year))) +
+    geom_boxplot() +
+    ggtitle("Title")
+```
+
+It looks like gaming has gone downhill since 2013 in terms of the quality of the games, assuming metacritic didn't change its scoring methodology.
+
+```{r}
+dataset %>% mutate(year = year(release_date), month = month(release_date)) %>% 
+  ggplot(aes(x = as.factor(month), y = score)) +
+    geom_boxplot() +
+    ggtitle("Title")
+```
+
+The quality of games is somewhat seasonal.
+
+```{r}
+dataset %>% mutate(year = year(release_date), month = month(release_date)) %>% 
+  ggplot(aes(x = as.factor(year), y = review_count)) +
+    geom_boxplot() +
+    ggtitle("Title")
+```
+
+Nothing really pops out.
+
+Let's rank the years
+```{r}
+dataset <- na.omit(dataset)
+
+dataset %>% mutate(year = year(release_date), month = month(release_date)) %>% filter() %>% group_by(year) %>% summarise(mean_score = mean(score), count = n())
+```
+
+It does look like a downward tends, however the review count changed considerably as well.
