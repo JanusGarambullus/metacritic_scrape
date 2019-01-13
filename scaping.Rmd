@@ -1,0 +1,115 @@
+---
+title: "Metacritic Scraping"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(rvest)
+library(lubridate)
+library(tidytext)
+library(plotly)
+```
+
+```{r}
+# Reading in pages and extracting hyperlinks
+result <- vector("list",10)
+
+for(i in 0:9) {
+  webpage <- read_html(paste0("https://www.metacritic.com/browse/games/release-date/available/ps4/metascore?page=", i))
+  loop_links <- webpage %>% html_nodes("#main .product_title a") %>% html_attr('href')
+  loop_links_proper <- paste0("https://www.metacritic.com", loop_links)
+  result[[i+1]] <- loop_links_proper
+}
+
+# Joining results into a single vector
+all_links <- unlist(result)
+```
+
+```{r}
+#game_page <- read_html("https://www.metacritic.com/game/playstation-4/wolfenstein-ii-the-new-colossus")
+```
+
+```{r}
+# Getting all the attributes
+
+final_result <- vector("list", 1812)
+names(final_result) <- all_links
+
+for(i in all_links) {
+#game_page <- read_html("https://www.metacritic.com/game/playstation-4/wolfenstein-ii-the-new-colossus")
+game_page <- read_html(i)
+
+title <- game_page %>% html_nodes("h1") %>% html_text()
+release_date <- game_page %>% html_nodes(".release_data .data") %>% html_text()
+developer <- game_page %>% html_nodes(".developer .data") %>% html_text()
+publisher <- game_page %>% html_nodes(".publisher a") %>% html_text()
+genre <- game_page %>% html_nodes(".product_genre .data") %>% html_text()
+score <- game_page %>% html_nodes(".positive span, .mixed span, .negative span") %>% html_text()
+review_count <- game_page %>% html_nodes(".highlight_metascore .count a") %>% html_text()
+description <- game_page %>% html_nodes(".data .blurb_expanded") %>% html_text()
+
+title <- ifelse(length(title) == 0, "Notapplicable", title)
+release_date <- ifelse(length(release_date) == 0, "Notapplicable", release_date)
+developer <- ifelse(length(developer) == 0, "Notapplicable", developer)
+publisher <- ifelse(length(publisher) == 0, "Notapplicable", publisher)
+genre <- ifelse(length(genre) == 0, "Notapplicable", genre)
+score <- ifelse(length(score) == 0, "Notapplicable", score)
+review_count <- ifelse(length(review_count) == 0, "Notapplicable", review_count)
+description <- ifelse(length(description) == 0, "Notapplicable", description)
+
+genre <- paste(genre, collapse = ', ')
+
+# Creating table entry from vectors
+final_result[[i]] <- data.frame(title, release_date, developer, publisher, genre, score, review_count, description)
+
+print(score)
+
+}
+```
+
+```{r}
+temp_results <- final_result
+```
+
+
+The loop got stopped at the 14th iteration. This means the scraping process is really fast as it only took around 30s to scrape 14 games.
+
+I got a bit stuck. I'm creating this data frame with each iteration, but when I get an empty value, I can't assemble my data frame. I need a way to check if my vector is empty, and if it is, need to put an "NA" as the value.
+
+I really need to invest in a progress bar for my loops. I have no way of knowing how far along I am. Since my indices are character vectors, I would need to name them as indices and refer to the position in my vector from my index. I'm gonna implement progress bars next time because this is a pain in the ass.
+
+This is an OK way to track progress, it prints the score so I can track how far along it is. I will use progress bars next time.
+
+Another thing to consider is skipping iterations if the for loop fails. In this case, I got a 404 error opening a site. Need to skip these errors.
+
+Let's carry on with the temp result.
+ 
+
+```{r}
+dataset <- do.call("rbind", temp_results)
+```
+
+The script is not perfect as it truncates the genre to a single value, something to look out for. Also, the description is taken as a single scraped category, which leaves a lot of values empty. I'm fairly happy with this overall. Time to clean up the data.
+
+696 of the 1607 games have missing descriptions, which is 43%. Not ideal but workable
+
+```{r}
+dataset$title <- as.character(dataset$title)
+dataset$release_date <- as.character(dataset$release_date)
+dataset$release_date <- mdy(dataset$release_date)
+dataset$developer <- as.character(dataset$developer)
+dataset$publisher <- as.character(dataset$publisher)
+dataset$genre <- as.character(dataset$genre)
+dataset$score <- as.numeric(as.character(dataset$score))
+dataset$review_count <- as.character(dataset$review_count)
+dataset$review_count <- gsub(" Critics", "", dataset$review_count)
+dataset$review_count <- as.numeric(dataset$review_count)
+dataset$description <- as.character(dataset$description)
+```
+
+Alright, the dataset is pretty tidy with variables in the right format. I'm quite happy with this.
+
+Further work would try to find games/movies that are divisive in terms of ratings. For this, not only do I have to scrape all games and their respective information, but go into their reviews page and scrape all of the scores. This is relatively straightforward bacause I can append "/critic-reviews" to each URL and get a list of all scores as well as the corresponding title. 
+
+You can scrape: "h1 , #main .indiv"

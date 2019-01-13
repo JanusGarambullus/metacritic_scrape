@@ -1,0 +1,139 @@
+---
+title: "Analysis"
+output: html_notebook
+---
+
+Questions: 
+
+Which studio produced the most games?
+
+```{r}
+dataset %>% count(developer) %>% arrange(desc(n))
+```
+Interestingly, Telltale games comes first. This is due to the episodic nature of their games.
+
+Who makes the best games?
+
+```{r}
+dataset %>% group_by(developer) %>% summarise(mean_score = mean(score), median_score = median(score), n = n()) %>% arrange(desc(mean_score))
+```
+
+Which genre receives the highest scores?
+
+```{r}
+dataset %>% group_by(genre) %>% summarise(mean_score = mean(score), median_score = median(score), n = n()) %>% arrange(desc(median_score)) 
+
+#  ggplot(aes(x = genre, y = median_score)) +
+#    geom_bar(stat = "identity") +
+#    ggtitle("Title") +
+#    coord_flip()
+```
+
+The most interesting part would be taking out the nondescipt titles, breaking down into words, score association and finding the words that are best correlated with high scores.
+
+```{r}
+dataset %>% count(description) %>% arrange(desc(n))
+```
+
+
+```{r}
+stripped_dataset <- dataset %>% filter(description != "Notapplicable")
+```
+
+So far so good, now I just need to unnest the words.
+
+```{r}
+words <- stripped_dataset %>% unnest_tokens(word, description)
+```
+
+```{r}
+words %>% group_by(word) %>% summarise(mean_score = mean(score), median_review_count = median(review_count), count = n()) %>% filter(count >= 30) %>% arrange(desc(mean_score))
+```
+
+Classic seems to have a higher average score, 80 games scoring in this category. Full has a really high score too. Overall, it is quite hard to distinguish between words associated with a single game and trends, but upon visual inspection, I noticed that the trends are very slightly observable. 
+
+This dataset is currently pretty good for checking the works of different developers and publishers and ranking them based on the quality of their titles.
+
+However, the dataset is currently difficult to use for searching games to play due to the restricted genre categories and the incomplete descriptions. 
+
+Besides, the Metacritic Website has a pretty extensive search tool that can narrow down games to genres with extensive arranging by several categories.
+
+```{r}
+dataset %>% ggplot(aes(x = score)) +
+  geom_density() +
+  ggtitle("Title")
+```
+
+We can see the cutoff at around 56 points where the 404 error was encountered. Nonetheless, this is a pretty complete picture. The distribution looks very normal with a mean of around 72.5 scores.
+
+```{r}
+dataset %>% ggplot(aes(x = review_count)) +
+  geom_density() +
+  ggtitle("Title")
+```
+
+The review count on the other hand shows a very strong right skew with a maximum of around 8 reviews.
+
+Let's investigate how review count and scores are associated.
+
+```{r}
+ggplotly(
+dataset %>% ggplot(aes(x = review_count, y = score, label = title)) +
+  geom_jitter(alpha = 0.2) +
+  ggtitle("Title")
+)
+```
+
+Up until the review count of around 70, I don't see a correlation between the number of reviews and score. However, as we go above the count of 75, the scores are beginning to get higher. These are most likely high profile, high quality AAA titles.
+
+```{r}
+ggplotly(
+dataset %>% ggplot(aes(x = release_date)) +
+  geom_density() +
+  ggtitle("Title")
+)
+```
+
+```{r}
+dataset %>% ggplot(aes(x = release_date, y = score)) +
+  geom_jitter() +
+  ggtitle("Title")
+```
+
+Let's define really good games by Metascores of above 85. Let's see how many games there are with this criteria over the years to assess how well gaming is doing.
+
+```{r}
+dataset %>% mutate(year = year(release_date), month = month(release_date)) %>% 
+  ggplot(aes(x = as.factor(year), y = score, fill = as.factor(year))) +
+    geom_boxplot() +
+    ggtitle("Title")
+```
+
+It looks like gaming has gone downhill since 2013 in terms of the quality of the games, assuming metacritic didn't change its scoring methodology.
+
+```{r}
+dataset %>% mutate(year = year(release_date), month = month(release_date)) %>% 
+  ggplot(aes(x = as.factor(month), y = score)) +
+    geom_boxplot() +
+    ggtitle("Title")
+```
+
+The quality of games is somewhat seasonal.
+
+```{r}
+dataset %>% mutate(year = year(release_date), month = month(release_date)) %>% 
+  ggplot(aes(x = as.factor(year), y = review_count)) +
+    geom_boxplot() +
+    ggtitle("Title")
+```
+
+Nothing really pops out.
+
+Let's rank the years
+```{r}
+dataset <- na.omit(dataset)
+
+dataset %>% mutate(year = year(release_date), month = month(release_date)) %>% filter() %>% group_by(year) %>% summarise(mean_score = mean(score), count = n())
+```
+
+It does look like a downward tends, however the review count changed considerably as well.
