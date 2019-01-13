@@ -1,4 +1,4 @@
-# Scraping Metacritic with R or: How I Learned to Stop Worrying and Love Loops
+# Scraping Metacritic with R: How I Learned to Stop Worrying and Love Loops
 
 An ongoing project to scrape Metacritic scores.
 The initial version scrapes the basic page content of all PS4 games.
