@@ -1,5 +1,5 @@
 ---
-title: "Metacritic Scraping"
+title: "Scraping Metacritic or: How I Learned to Stop Worrying and Love Loops"
 output: html_notebook
 ---
 
@@ -118,17 +118,20 @@ dataset$review_count <- as.numeric(dataset$review_count)
 dataset$description <- as.character(dataset$description)
 ```
 
-Alright, the dataset is pretty tidy with variables in the right format. I'm quite happy with this.
+## Replacing for loop with a 'map' function
 
-Further work would try to find games/movies that are divisive in terms of ratings. For this, not only do I have to scrape all games and their respective information, but go into their reviews page and scrape all of the scores. This is relatively straightforward bacause I can append "/critic-reviews" to each URL and get a list of all scores as well as the corresponding title. 
-
-You can scrape: "h1 , #main .indiv"
+TBC
 
 ## Description
 
 For some reason, the descriptions are split into two different CSS types, depending on whether the text is collapsed or fits into the page. I need a way to make a call for both types of CSS, save them to a separate row, detect which version is the longer, delete the short versions. This needs some testing.
 
 Find a few examples for both types and test them with both CSS selectors.
+
+1. Test with 
+
+
+
 
 ## Scraping all review scores
 
