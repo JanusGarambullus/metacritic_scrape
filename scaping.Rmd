@@ -11,11 +11,20 @@ library(tidytext)
 library(plotly)
 ```
 
+Getting the number of pages to scrape
+
+```{r}
+page_initial <- read_html("https://www.metacritic.com/browse/games/release-date/available/ps4/metascore?page=0")
+no_pages <- page_initial %>% html_nodes(".page_num") %>% html_text()
+```
+
+".page_num"
+
 ```{r}
 # Reading in pages and extracting hyperlinks
-result <- vector("list",10)
+result <- vector("list", length(no_pages))
 
-for(i in 0:9) {
+for(i in 0:(length(no_pages)-1)) {
   webpage <- read_html(paste0("https://www.metacritic.com/browse/games/release-date/available/ps4/metascore?page=", i))
   loop_links <- webpage %>% html_nodes("#main .product_title a") %>% html_attr('href')
   loop_links_proper <- paste0("https://www.metacritic.com", loop_links)
@@ -24,6 +33,8 @@ for(i in 0:9) {
 
 # Joining results into a single vector
 all_links <- unlist(result)
+
+all_links_reviews <- paste0(all_links, "/critic-reviews")
 ```
 
 ```{r}
@@ -32,9 +43,11 @@ all_links <- unlist(result)
 
 ```{r}
 # Getting all the attributes
-
-final_result <- vector("list", 1812)
+final_result <- vector("list", length(all_links))
 names(final_result) <- all_links
+
+# Set 0 for progress bar
+no <- 0
 
 for(i in all_links) {
 #game_page <- read_html("https://www.metacritic.com/game/playstation-4/wolfenstein-ii-the-new-colossus")
@@ -49,6 +62,7 @@ score <- game_page %>% html_nodes(".positive span, .mixed span, .negative span")
 review_count <- game_page %>% html_nodes(".highlight_metascore .count a") %>% html_text()
 description <- game_page %>% html_nodes(".data .blurb_expanded") %>% html_text()
 
+# Checking if data is present, if empty, enter Notapplicable
 title <- ifelse(length(title) == 0, "Notapplicable", title)
 release_date <- ifelse(length(release_date) == 0, "Notapplicable", release_date)
 developer <- ifelse(length(developer) == 0, "Notapplicable", developer)
@@ -63,21 +77,17 @@ genre <- paste(genre, collapse = ', ')
 # Creating table entry from vectors
 final_result[[i]] <- data.frame(title, release_date, developer, publisher, genre, score, review_count, description)
 
-print(score)
+# Progress bar
+no <- no + 1
+print(paste0("Progress: ", no, "/", length(all_links), ", ", round(no/length(all_links)*100, 2), "%"))
 
 }
 ```
 
 ```{r}
+# TEMPORARY LINE DUE TO ERROR IN LOOP
 temp_results <- final_result
 ```
-
-
-The loop got stopped at the 14th iteration. This means the scraping process is really fast as it only took around 30s to scrape 14 games.
-
-I got a bit stuck. I'm creating this data frame with each iteration, but when I get an empty value, I can't assemble my data frame. I need a way to check if my vector is empty, and if it is, need to put an "NA" as the value.
-
-I really need to invest in a progress bar for my loops. I have no way of knowing how far along I am. Since my indices are character vectors, I would need to name them as indices and refer to the position in my vector from my index. I'm gonna implement progress bars next time because this is a pain in the ass.
 
 This is an OK way to track progress, it prints the score so I can track how far along it is. I will use progress bars next time.
 
@@ -113,3 +123,31 @@ Alright, the dataset is pretty tidy with variables in the right format. I'm quit
 Further work would try to find games/movies that are divisive in terms of ratings. For this, not only do I have to scrape all games and their respective information, but go into their reviews page and scrape all of the scores. This is relatively straightforward bacause I can append "/critic-reviews" to each URL and get a list of all scores as well as the corresponding title. 
 
 You can scrape: "h1 , #main .indiv"
+
+## Description
+
+For some reason, the descriptions are split into two different CSS types, depending on whether the text is collapsed or fits into the page. I need a way to make a call for both types of CSS, save them to a separate row, detect which version is the longer, delete the short versions. This needs some testing.
+
+Find a few examples for both types and test them with both CSS selectors.
+
+## Scraping all review scores
+
+Requires testing, I could run a second loop that takes the title and scores of each iteration. Let's see if it works.
+
+```{r}
+test_game_page <- read_html("https://www.metacritic.com/game/playstation-4/wolfenstein-ii-the-new-colossus/critic-reviews")
+test_game_title <- test_game_page %>% html_nodes("h1 , #main .indiv") %>% html_text()
+```
+
+```{r}
+critic_score_loop_output <- vector("list", length(all_links))
+names(critic_score_loop_output) <- all_links_reviews
+
+for (i in all_links_reviews) {
+
+critic_page <- read_html(i)
+critic_page_score <- critic_page %>% html_nodes("h1 , #main .indiv") %>% html_text()
+critic_score_loop_output[[i]] <- critic_page_score
+
+}
+```
