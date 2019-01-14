@@ -8,7 +8,6 @@ library(tidyverse)
 library(rvest)
 library(lubridate)
 library(tidytext)
-library(plotly)
 ```
 
 Getting the number of pages to scrape
@@ -17,8 +16,6 @@ Getting the number of pages to scrape
 page_initial <- read_html("https://www.metacritic.com/browse/games/release-date/available/ps4/metascore?page=0")
 no_pages <- page_initial %>% html_nodes(".page_num") %>% html_text()
 ```
-
-".page_num"
 
 ```{r}
 # Reading in pages and extracting hyperlinks
@@ -80,7 +77,6 @@ final_result[[i]] <- data.frame(title, release_date, developer, publisher, genre
 # Progress bar
 no <- no + 1
 print(paste0("Progress: ", no, "/", length(all_links), ", ", round(no/length(all_links)*100, 2), "%"))
-
 }
 ```
 
@@ -120,7 +116,7 @@ dataset$description <- as.character(dataset$description)
 
 ## Replacing for loop with a 'map' function
 
-TBC
+This is the only problem now. It's quite a big one actually as it prevents the pages from being scraped completely. The first 404 error stops the entire loop. I will use a map function to get around this. After this step the script can be assembled and the fun begins.
 
 ## Description
 
@@ -128,10 +124,23 @@ For some reason, the descriptions are split into two different CSS types, depend
 
 Find a few examples for both types and test them with both CSS selectors.
 
-1. Test with 
+1. Test with a collapsible page type
+2. Test with a non-collapsible page type: '.product_summary .data span'
 
+Let's see what happens when a collapsed page is scraped with the normal type.
 
+```{r}
+collapsible_game_page <- read_html("https://www.metacritic.com/game/playstation-4/wolfenstein-ii-the-new-colossus")
+collapsible_game_description <- collapsible_game_page %>% html_nodes(".product_summary .data span") %>% html_text()
+```
 
+```{r}
+collapsible_game_page <- read_html("https://www.metacritic.com/game/playstation-4/celeste")
+collapsible_game_description <- collapsible_game_page %>% html_nodes(".product_summary .data span") %>% html_text()
+test <- collapsible_game_description[1]
+```
+
+This works perfectly for GTA V. Does it work for Celeste? Yes, it does. So I just need to implement this and all is well.
 
 ## Scraping all review scores
 
@@ -151,6 +160,5 @@ for (i in all_links_reviews) {
 critic_page <- read_html(i)
 critic_page_score <- critic_page %>% html_nodes("h1 , #main .indiv") %>% html_text()
 critic_score_loop_output[[i]] <- critic_page_score
-
 }
 ```

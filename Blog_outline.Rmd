@@ -1,0 +1,24 @@
+---
+title: "Scraping Metacritic with R: How I Learned to Stop Worrying and Love Loops"
+author: "Naoki Ohno"
+date: "January 2019"
+output: html_notebook
+---
+
+## Introduction
+
+As a Film enthusiast, I am always on the lookout for the next potential title to watch. For every amazing film, there are many bad ones. This is where film review sites come in handy. In our fast-paced life we don't have time to watch every single movie and we might miss amazing ones that we never even thought about watching before. This is where film review sites come in handy...
+
+However, the data analyst in me finds the filtering function of these sites lacking. Wouldn't it be amazing to filter films based on multiple criteria at the same time? For example, I am looking for a Sci-fi film made between 2000 and 2005 that has a minimum Metascore of 65 and contains the keyword 'robot' in the description? 
+
+Alternatively, we might want to carry out in-depth analysis on what drives review scores and notice trends across years, genres and directors.
+
+To achieve this, we need to collect data on all of the variables mentioned above and place them in a nice and tidy tabular format.
+
+## The Scoop
+
+The complete script without the filler text can be found on my Github:
+
+https://github.com/JanusGarambullus/metacritic_scrape
+
+First, let's load the packages...
