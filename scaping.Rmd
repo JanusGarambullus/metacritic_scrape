@@ -2,6 +2,7 @@
 title: "Scraping Metacritic or: How I Learned to Stop Worrying and Love Loops"
 output: html_notebook
 ---
+The script works fine. I will do the rest of the data wrangling and write up the analysis later.
 
 ```{r}
 library(tidyverse)
@@ -9,8 +10,6 @@ library(rvest)
 library(lubridate)
 library(tidytext)
 ```
-
-Getting the number of pages to scrape
 
 ```{r}
 page_initial <- read_html("https://www.metacritic.com/browse/games/release-date/available/ps4/metascore?page=0")
@@ -30,12 +29,7 @@ for(i in 0:(length(no_pages)-1)) {
 
 # Joining results into a single vector
 all_links <- unlist(result)
-
 all_links_reviews <- paste0(all_links, "/critic-reviews")
-```
-
-```{r}
-#game_page <- read_html("https://www.metacritic.com/game/playstation-4/wolfenstein-ii-the-new-colossus")
 ```
 
 ```{r}
@@ -47,7 +41,10 @@ names(final_result) <- all_links
 no <- 0
 
 for(i in all_links) {
-#game_page <- read_html("https://www.metacritic.com/game/playstation-4/wolfenstein-ii-the-new-colossus")
+  
+# Start the trycatch
+try({    
+
 game_page <- read_html(i)
 
 title <- game_page %>% html_nodes("h1") %>% html_text()
@@ -57,7 +54,8 @@ publisher <- game_page %>% html_nodes(".publisher a") %>% html_text()
 genre <- game_page %>% html_nodes(".product_genre .data") %>% html_text()
 score <- game_page %>% html_nodes(".positive span, .mixed span, .negative span") %>% html_text()
 review_count <- game_page %>% html_nodes(".highlight_metascore .count a") %>% html_text()
-description <- game_page %>% html_nodes(".data .blurb_expanded") %>% html_text()
+description <- game_page %>% html_nodes(".product_summary .data span") %>% html_text()
+description <- description[1]
 
 # Checking if data is present, if empty, enter Notapplicable
 title <- ifelse(length(title) == 0, "Notapplicable", title)
@@ -74,26 +72,38 @@ genre <- paste(genre, collapse = ', ')
 # Creating table entry from vectors
 final_result[[i]] <- data.frame(title, release_date, developer, publisher, genre, score, review_count, description)
 
+# End the trycatch
+}, silent=TRUE)
 # Progress bar
 no <- no + 1
 print(paste0("Progress: ", no, "/", length(all_links), ", ", round(no/length(all_links)*100, 2), "%"))
 }
 ```
 
+## Scraping all review scores
+
 ```{r}
-# TEMPORARY LINE DUE TO ERROR IN LOOP
-temp_results <- final_result
+critic_score_loop_output <- vector("list", length(all_links))
+names(critic_score_loop_output) <- all_links_reviews
+nos <- 0
+
+for (i in all_links_reviews) {
+
+try({ 
+   
+critic_page <- read_html(i)
+critic_page_score <- critic_page %>% html_nodes("h1 , #main .indiv") %>% html_text()
+critic_score_loop_output[[i]] <- critic_page_score
+
+}, silent=TRUE)
+
+nos <- nos + 1
+print(paste0("Progress: ", nos, "/", length(all_links_reviews), ", ", round(nos/length(all_links_reviews)*100, 2), "%"))
+}
 ```
 
-This is an OK way to track progress, it prints the score so I can track how far along it is. I will use progress bars next time.
-
-Another thing to consider is skipping iterations if the for loop fails. In this case, I got a 404 error opening a site. Need to skip these errors.
-
-Let's carry on with the temp result.
- 
-
 ```{r}
-dataset <- do.call("rbind", temp_results)
+#dataset <- do.call("rbind", temp_results)
 ```
 
 The script is not perfect as it truncates the genre to a single value, something to look out for. Also, the description is taken as a single scraped category, which leaves a lot of values empty. I'm fairly happy with this overall. Time to clean up the data.
@@ -101,64 +111,45 @@ The script is not perfect as it truncates the genre to a single value, something
 696 of the 1607 games have missing descriptions, which is 43%. Not ideal but workable
 
 ```{r}
-dataset$title <- as.character(dataset$title)
-dataset$release_date <- as.character(dataset$release_date)
-dataset$release_date <- mdy(dataset$release_date)
-dataset$developer <- as.character(dataset$developer)
-dataset$publisher <- as.character(dataset$publisher)
-dataset$genre <- as.character(dataset$genre)
-dataset$score <- as.numeric(as.character(dataset$score))
-dataset$review_count <- as.character(dataset$review_count)
-dataset$review_count <- gsub(" Critics", "", dataset$review_count)
-dataset$review_count <- as.numeric(dataset$review_count)
-dataset$description <- as.character(dataset$description)
+# dataset$title <- as.character(dataset$title)
+# dataset$release_date <- as.character(dataset$release_date)
+# dataset$release_date <- mdy(dataset$release_date)
+# dataset$developer <- as.character(dataset$developer)
+# dataset$publisher <- as.character(dataset$publisher)
+# dataset$genre <- as.character(dataset$genre)
+# dataset$score <- as.numeric(as.character(dataset$score))
+# dataset$review_count <- as.character(dataset$review_count)
+# dataset$review_count <- gsub(" Critics", "", dataset$review_count)
+# dataset$review_count <- as.numeric(dataset$review_count)
+# dataset$description <- as.character(dataset$description)
 ```
 
 ## Replacing for loop with a 'map' function
 
 This is the only problem now. It's quite a big one actually as it prevents the pages from being scraped completely. The first 404 error stops the entire loop. I will use a map function to get around this. After this step the script can be assembled and the fun begins.
 
-## Description
-
-For some reason, the descriptions are split into two different CSS types, depending on whether the text is collapsed or fits into the page. I need a way to make a call for both types of CSS, save them to a separate row, detect which version is the longer, delete the short versions. This needs some testing.
-
-Find a few examples for both types and test them with both CSS selectors.
-
-1. Test with a collapsible page type
-2. Test with a non-collapsible page type: '.product_summary .data span'
-
-Let's see what happens when a collapsed page is scraped with the normal type.
 
 ```{r}
-collapsible_game_page <- read_html("https://www.metacritic.com/game/playstation-4/wolfenstein-ii-the-new-colossus")
-collapsible_game_description <- collapsible_game_page %>% html_nodes(".product_summary .data span") %>% html_text()
+# collapsible_game_page <- read_html("https://www.metacritic.com/game/playstation-4/wolfenstein-ii-the-new-colossus")
+# collapsible_game_description <- collapsible_game_page %>% html_nodes(".product_summary .data span") %>% html_text()
 ```
 
 ```{r}
-collapsible_game_page <- read_html("https://www.metacritic.com/game/playstation-4/celeste")
-collapsible_game_description <- collapsible_game_page %>% html_nodes(".product_summary .data span") %>% html_text()
-test <- collapsible_game_description[1]
+# collapsible_game_page <- read_html("https://www.metacritic.com/game/playstation-4/celeste")
+# collapsible_game_description <- collapsible_game_page %>% html_nodes(".product_summary .data span") %>% html_text()
+# test <- collapsible_game_description[1]
 ```
 
-This works perfectly for GTA V. Does it work for Celeste? Yes, it does. So I just need to implement this and all is well.
-
-## Scraping all review scores
-
-Requires testing, I could run a second loop that takes the title and scores of each iteration. Let's see if it works.
 
 ```{r}
-test_game_page <- read_html("https://www.metacritic.com/game/playstation-4/wolfenstein-ii-the-new-colossus/critic-reviews")
-test_game_title <- test_game_page %>% html_nodes("h1 , #main .indiv") %>% html_text()
+# result <- 0
+# for(i in 1:10){
+#   try({                # start code block
+#   result = result + i
+#   log("a")             # I do not care about this error
+#   result = result + i
+#   }, silent=TRUE)      # end of try function
+# }
 ```
 
-```{r}
-critic_score_loop_output <- vector("list", length(all_links))
-names(critic_score_loop_output) <- all_links_reviews
 
-for (i in all_links_reviews) {
-
-critic_page <- read_html(i)
-critic_page_score <- critic_page %>% html_nodes("h1 , #main .indiv") %>% html_text()
-critic_score_loop_output[[i]] <- critic_page_score
-}
-```

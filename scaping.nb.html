@@ -239,6 +239,7 @@ $(document).ready(function () {
 
 
 <!-- rnb-text-begin -->
+<p>The script works fine. I will do the rest of the data wrangling and write up the analysis later.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0aWR5dmVyc2UpXG5saWJyYXJ5KHJ2ZXN0KVxubGlicmFyeShsdWJyaWRhdGUpXG5saWJyYXJ5KHRpZHl0ZXh0KVxuYGBgIn0= -->
@@ -249,72 +250,111 @@ library(tidytext)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Getting the number of pages to scrape</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubm9fcGFnZXMgPC0gcGFnZV9pbnRpdGlhbCAlPiUgaHRtbF9ub2RlcyhcIi5wYWdlX251bVwiKSAlPiUgaHRtbF90ZXh0KClcblxuYGBgIn0= -->
-<pre class="r"><code>no_pages &lt;- page_intitial %&gt;% html_nodes(&quot;.page_num&quot;) %&gt;% html_text()
-</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucGFnZV9pbml0aWFsIDwtIHJlYWRfaHRtbChcImh0dHBzOi8vd3d3Lm1ldGFjcml0aWMuY29tL2Jyb3dzZS9nYW1lcy9yZWxlYXNlLWRhdGUvYXZhaWxhYmxlL3BzNC9tZXRhc2NvcmU/cGFnZT0wXCIpXG5ub19wYWdlcyA8LSBwYWdlX2luaXRpYWwgJT4lIGh0bWxfbm9kZXMoXCIucGFnZV9udW1cIikgJT4lIGh0bWxfdGV4dCgpXG5gYGAifQ== -->
+<pre class="r"><code>page_initial &lt;- read_html(&quot;https://www.metacritic.com/browse/games/release-date/available/ps4/metascore?page=0&quot;)
+no_pages &lt;- page_initial %&gt;% html_nodes(&quot;.page_num&quot;) %&gt;% html_text()</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gZXZhbChsaHMsIHBhcmVudCwgcGFyZW50KSA6IG9iamVjdCAncGFnZV9pbnRpdGlhbCcgbm90IGZvdW5kXG4ifQ== -->
-<pre><code>Error in eval(lhs, parent, parent) : object 'page_intitial' not found</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBSZWFkaW5nIGluIHBhZ2VzIGFuZCBleHRyYWN0aW5nIGh5cGVybGlua3NcbnJlc3VsdCA8LSB2ZWN0b3IoXCJsaXN0XCIsIGxlbmd0aChub19wYWdlcykpXG5cbmZvcihpIGluIDA6KGxlbmd0aChub19wYWdlcyktMSkpIHtcbiAgd2VicGFnZSA8LSByZWFkX2h0bWwocGFzdGUwKFwiaHR0cHM6Ly93d3cubWV0YWNyaXRpYy5jb20vYnJvd3NlL2dhbWVzL3JlbGVhc2UtZGF0ZS9hdmFpbGFibGUvcHM0L21ldGFzY29yZT9wYWdlPVwiLCBpKSlcbiAgbG9vcF9saW5rcyA8LSB3ZWJwYWdlICU+JSBodG1sX25vZGVzKFwiI21haW4gLnByb2R1Y3RfdGl0bGUgYVwiKSAlPiUgaHRtbF9hdHRyKCdocmVmJylcbiAgbG9vcF9saW5rc19wcm9wZXIgPC0gcGFzdGUwKFwiaHR0cHM6Ly93d3cubWV0YWNyaXRpYy5jb21cIiwgbG9vcF9saW5rcylcbiAgcmVzdWx0W1tpKzFdXSA8LSBsb29wX2xpbmtzX3Byb3BlclxufVxuXG4jIEpvaW5pbmcgcmVzdWx0cyBpbnRvIGEgc2luZ2xlIHZlY3RvclxuYWxsX2xpbmtzIDwtIHVubGlzdChyZXN1bHQpXG5cbmFsbF9saW5rc19yZXZpZXdzIDwtIHBhc3RlMChhbGxfbGlua3MsIFwiL2NyaXRpYy1yZXZpZXdzXCIpXG5gYGAifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBSZWFkaW5nIGluIHBhZ2VzIGFuZCBleHRyYWN0aW5nIGh5cGVybGlua3NcbnJlc3VsdCA8LSB2ZWN0b3IoXCJsaXN0XCIsIGxlbmd0aChub19wYWdlcykpXG5mb3IoaSBpbiAwOihsZW5ndGgobm9fcGFnZXMpLTEpKSB7XG4gIHdlYnBhZ2UgPC0gcmVhZF9odG1sKHBhc3RlMChcImh0dHBzOi8vd3d3Lm1ldGFjcml0aWMuY29tL2Jyb3dzZS9nYW1lcy9yZWxlYXNlLWRhdGUvYXZhaWxhYmxlL3BzNC9tZXRhc2NvcmU/cGFnZT1cIiwgaSkpXG4gIGxvb3BfbGlua3MgPC0gd2VicGFnZSAlPiUgaHRtbF9ub2RlcyhcIiNtYWluIC5wcm9kdWN0X3RpdGxlIGFcIikgJT4lIGh0bWxfYXR0cignaHJlZicpXG4gIGxvb3BfbGlua3NfcHJvcGVyIDwtIHBhc3RlMChcImh0dHBzOi8vd3d3Lm1ldGFjcml0aWMuY29tXCIsIGxvb3BfbGlua3MpXG4gIHJlc3VsdFtbaSsxXV0gPC0gbG9vcF9saW5rc19wcm9wZXJcbn1cbiMgSm9pbmluZyByZXN1bHRzIGludG8gYSBzaW5nbGUgdmVjdG9yXG5hbGxfbGlua3MgPC0gdW5saXN0KHJlc3VsdClcbmFsbF9saW5rc19yZXZpZXdzIDwtIHBhc3RlMChhbGxfbGlua3MsIFwiL2NyaXRpYy1yZXZpZXdzXCIpXG5gYGAifQ== -->
 <pre class="r"><code># Reading in pages and extracting hyperlinks
 result &lt;- vector(&quot;list&quot;, length(no_pages))
-
 for(i in 0:(length(no_pages)-1)) {
   webpage &lt;- read_html(paste0(&quot;https://www.metacritic.com/browse/games/release-date/available/ps4/metascore?page=&quot;, i))
   loop_links &lt;- webpage %&gt;% html_nodes(&quot;#main .product_title a&quot;) %&gt;% html_attr('href')
   loop_links_proper &lt;- paste0(&quot;https://www.metacritic.com&quot;, loop_links)
   result[[i+1]] &lt;- loop_links_proper
 }
-
 # Joining results into a single vector
 all_links &lt;- unlist(result)
-
 all_links_reviews &lt;- paste0(all_links, &quot;/critic-reviews&quot;)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2dhbWVfcGFnZSA8LSByZWFkX2h0bWwoXCJodHRwczovL3d3dy5tZXRhY3JpdGljLmNvbS9nYW1lL3BsYXlzdGF0aW9uLTQvd29sZmVuc3RlaW4taWktdGhlLW5ldy1jb2xvc3N1c1wiKVxuYGBgIn0= -->
-<pre class="r"><code>#game_page &lt;- read_html(&quot;https://www.metacritic.com/game/playstation-4/wolfenstein-ii-the-new-colossus&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBQcm9ncmVzcyBiYXJcbm5vIDwtIG5vICsgMVxuXG5gYGAifQ== -->
-<pre class="r"><code># Progress bar
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBHZXR0aW5nIGFsbCB0aGUgYXR0cmlidXRlc1xuZmluYWxfcmVzdWx0IDwtIHZlY3RvcihcImxpc3RcIiwgbGVuZ3RoKGFsbF9saW5rcykpXG5uYW1lcyhmaW5hbF9yZXN1bHQpIDwtIGFsbF9saW5rc1xuXG4jIFNldCAwIGZvciBwcm9ncmVzcyBiYXJcbm5vIDwtIDBcblxuZm9yKGkgaW4gYWxsX2xpbmtzKSB7XG4gIFxuIyBTdGFydCB0aGUgdHJ5Y2F0Y2hcbnRyeSh7ICAgIFxuXG5nYW1lX3BhZ2UgPC0gcmVhZF9odG1sKGkpXG5cbnRpdGxlIDwtIGdhbWVfcGFnZSAlPiUgaHRtbF9ub2RlcyhcImgxXCIpICU+JSBodG1sX3RleHQoKVxucmVsZWFzZV9kYXRlIDwtIGdhbWVfcGFnZSAlPiUgaHRtbF9ub2RlcyhcIi5yZWxlYXNlX2RhdGEgLmRhdGFcIikgJT4lIGh0bWxfdGV4dCgpXG5kZXZlbG9wZXIgPC0gZ2FtZV9wYWdlICU+JSBodG1sX25vZGVzKFwiLmRldmVsb3BlciAuZGF0YVwiKSAlPiUgaHRtbF90ZXh0KClcbnB1Ymxpc2hlciA8LSBnYW1lX3BhZ2UgJT4lIGh0bWxfbm9kZXMoXCIucHVibGlzaGVyIGFcIikgJT4lIGh0bWxfdGV4dCgpXG5nZW5yZSA8LSBnYW1lX3BhZ2UgJT4lIGh0bWxfbm9kZXMoXCIucHJvZHVjdF9nZW5yZSAuZGF0YVwiKSAlPiUgaHRtbF90ZXh0KClcbnNjb3JlIDwtIGdhbWVfcGFnZSAlPiUgaHRtbF9ub2RlcyhcIi5wb3NpdGl2ZSBzcGFuLCAubWl4ZWQgc3BhbiwgLm5lZ2F0aXZlIHNwYW5cIikgJT4lIGh0bWxfdGV4dCgpXG5yZXZpZXdfY291bnQgPC0gZ2FtZV9wYWdlICU+JSBodG1sX25vZGVzKFwiLmhpZ2hsaWdodF9tZXRhc2NvcmUgLmNvdW50IGFcIikgJT4lIGh0bWxfdGV4dCgpXG5kZXNjcmlwdGlvbiA8LSBnYW1lX3BhZ2UgJT4lIGh0bWxfbm9kZXMoXCIucHJvZHVjdF9zdW1tYXJ5IC5kYXRhIHNwYW5cIikgJT4lIGh0bWxfdGV4dCgpXG5kZXNjcmlwdGlvbiA8LSBkZXNjcmlwdGlvblsxXVxuXG4jIENoZWNraW5nIGlmIGRhdGEgaXMgcHJlc2VudCwgaWYgZW1wdHksIGVudGVyIE5vdGFwcGxpY2FibGVcbnRpdGxlIDwtIGlmZWxzZShsZW5ndGgodGl0bGUpID09IDAsIFwiTm90YXBwbGljYWJsZVwiLCB0aXRsZSlcbnJlbGVhc2VfZGF0ZSA8LSBpZmVsc2UobGVuZ3RoKHJlbGVhc2VfZGF0ZSkgPT0gMCwgXCJOb3RhcHBsaWNhYmxlXCIsIHJlbGVhc2VfZGF0ZSlcbmRldmVsb3BlciA8LSBpZmVsc2UobGVuZ3RoKGRldmVsb3BlcikgPT0gMCwgXCJOb3RhcHBsaWNhYmxlXCIsIGRldmVsb3BlcilcbnB1Ymxpc2hlciA8LSBpZmVsc2UobGVuZ3RoKHB1Ymxpc2hlcikgPT0gMCwgXCJOb3RhcHBsaWNhYmxlXCIsIHB1Ymxpc2hlcilcbmdlbnJlIDwtIGlmZWxzZShsZW5ndGgoZ2VucmUpID09IDAsIFwiTm90YXBwbGljYWJsZVwiLCBnZW5yZSlcbnNjb3JlIDwtIGlmZWxzZShsZW5ndGgoc2NvcmUpID09IDAsIFwiTm90YXBwbGljYWJsZVwiLCBzY29yZSlcbnJldmlld19jb3VudCA8LSBpZmVsc2UobGVuZ3RoKHJldmlld19jb3VudCkgPT0gMCwgXCJOb3RhcHBsaWNhYmxlXCIsIHJldmlld19jb3VudClcbmRlc2NyaXB0aW9uIDwtIGlmZWxzZShsZW5ndGgoZGVzY3JpcHRpb24pID09IDAsIFwiTm90YXBwbGljYWJsZVwiLCBkZXNjcmlwdGlvbilcblxuZ2VucmUgPC0gcGFzdGUoZ2VucmUsIGNvbGxhcHNlID0gJywgJylcblxuIyBDcmVhdGluZyB0YWJsZSBlbnRyeSBmcm9tIHZlY3RvcnNcbmZpbmFsX3Jlc3VsdFtbaV1dIDwtIGRhdGEuZnJhbWUodGl0bGUsIHJlbGVhc2VfZGF0ZSwgZGV2ZWxvcGVyLCBwdWJsaXNoZXIsIGdlbnJlLCBzY29yZSwgcmV2aWV3X2NvdW50LCBkZXNjcmlwdGlvbilcblxuIyBFbmQgdGhlIHRyeWNhdGNoXG59LCBzaWxlbnQ9VFJVRSlcbiMgUHJvZ3Jlc3MgYmFyXG5ubyA8LSBubyArIDFcbnByaW50KHBhc3RlMChcIlByb2dyZXNzOiBcIiwgbm8sIFwiL1wiLCBsZW5ndGgoYWxsX2xpbmtzKSwgXCIsIFwiLCByb3VuZChuby9sZW5ndGgoYWxsX2xpbmtzKSoxMDAsIDIpLCBcIiVcIikpXG59XG5gYGAifQ== -->
+<pre class="r"><code># Getting all the attributes
+final_result &lt;- vector(&quot;list&quot;, length(all_links))
+names(final_result) &lt;- all_links
+
+# Set 0 for progress bar
+no &lt;- 0
+
+for(i in all_links) {
+  
+# Start the trycatch
+try({    
+
+game_page &lt;- read_html(i)
+
+title &lt;- game_page %&gt;% html_nodes(&quot;h1&quot;) %&gt;% html_text()
+release_date &lt;- game_page %&gt;% html_nodes(&quot;.release_data .data&quot;) %&gt;% html_text()
+developer &lt;- game_page %&gt;% html_nodes(&quot;.developer .data&quot;) %&gt;% html_text()
+publisher &lt;- game_page %&gt;% html_nodes(&quot;.publisher a&quot;) %&gt;% html_text()
+genre &lt;- game_page %&gt;% html_nodes(&quot;.product_genre .data&quot;) %&gt;% html_text()
+score &lt;- game_page %&gt;% html_nodes(&quot;.positive span, .mixed span, .negative span&quot;) %&gt;% html_text()
+review_count &lt;- game_page %&gt;% html_nodes(&quot;.highlight_metascore .count a&quot;) %&gt;% html_text()
+description &lt;- game_page %&gt;% html_nodes(&quot;.product_summary .data span&quot;) %&gt;% html_text()
+description &lt;- description[1]
+
+# Checking if data is present, if empty, enter Notapplicable
+title &lt;- ifelse(length(title) == 0, &quot;Notapplicable&quot;, title)
+release_date &lt;- ifelse(length(release_date) == 0, &quot;Notapplicable&quot;, release_date)
+developer &lt;- ifelse(length(developer) == 0, &quot;Notapplicable&quot;, developer)
+publisher &lt;- ifelse(length(publisher) == 0, &quot;Notapplicable&quot;, publisher)
+genre &lt;- ifelse(length(genre) == 0, &quot;Notapplicable&quot;, genre)
+score &lt;- ifelse(length(score) == 0, &quot;Notapplicable&quot;, score)
+review_count &lt;- ifelse(length(review_count) == 0, &quot;Notapplicable&quot;, review_count)
+description &lt;- ifelse(length(description) == 0, &quot;Notapplicable&quot;, description)
+
+genre &lt;- paste(genre, collapse = ', ')
+
+# Creating table entry from vectors
+final_result[[i]] &lt;- data.frame(title, release_date, developer, publisher, genre, score, review_count, description)
+
+# End the trycatch
+}, silent=TRUE)
+# Progress bar
 no &lt;- no + 1
-</code></pre>
+print(paste0(&quot;Progress: &quot;, no, &quot;/&quot;, length(all_links), &quot;, &quot;, round(no/length(all_links)*100, 2), &quot;%&quot;))
+}</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3I6IG9iamVjdCAnbm8nIG5vdCBmb3VuZFxuIn0= -->
-<pre><code>Error: object 'no' not found</code></pre>
-<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div id="scraping-all-review-scores" class="section level2">
+<h2>Scraping all review scores</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY3JpdGljX3Njb3JlX2xvb3Bfb3V0cHV0IDwtIHZlY3RvcihcImxpc3RcIiwgbGVuZ3RoKGFsbF9saW5rcykpXG5uYW1lcyhjcml0aWNfc2NvcmVfbG9vcF9vdXRwdXQpIDwtIGFsbF9saW5rc19yZXZpZXdzXG5ub3MgPC0gMFxuXG5mb3IgKGkgaW4gYWxsX2xpbmtzX3Jldmlld3MpIHtcblxudHJ5KHsgXG4gICBcbmNyaXRpY19wYWdlIDwtIHJlYWRfaHRtbChpKVxuY3JpdGljX3BhZ2Vfc2NvcmUgPC0gY3JpdGljX3BhZ2UgJT4lIGh0bWxfbm9kZXMoXCJoMSAsICNtYWluIC5pbmRpdlwiKSAlPiUgaHRtbF90ZXh0KClcbmNyaXRpY19zY29yZV9sb29wX291dHB1dFtbaV1dIDwtIGNyaXRpY19wYWdlX3Njb3JlXG5cbn0sIHNpbGVudD1UUlVFKVxuXG5ub3MgPC0gbm9zICsgMVxucHJpbnQocGFzdGUwKFwiUHJvZ3Jlc3M6IFwiLCBub3MsIFwiL1wiLCBsZW5ndGgoYWxsX2xpbmtzX3Jldmlld3MpLCBcIiwgXCIsIHJvdW5kKG5vcy9sZW5ndGgoYWxsX2xpbmtzX3Jldmlld3MpKjEwMCwgMiksIFwiJVwiKSlcbn1cbmBgYCJ9 -->
+<pre class="r"><code>critic_score_loop_output &lt;- vector(&quot;list&quot;, length(all_links))
+names(critic_score_loop_output) &lt;- all_links_reviews
+nos &lt;- 0
+
+for (i in all_links_reviews) {
+
+try({ 
+   
+critic_page &lt;- read_html(i)
+critic_page_score &lt;- critic_page %&gt;% html_nodes(&quot;h1 , #main .indiv&quot;) %&gt;% html_text()
+critic_score_loop_output[[i]] &lt;- critic_page_score
+
+}, silent=TRUE)
+
+nos &lt;- nos + 1
+print(paste0(&quot;Progress: &quot;, nos, &quot;/&quot;, length(all_links_reviews), &quot;, &quot;, round(nos/length(all_links_reviews)*100, 2), &quot;%&quot;))
+}</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBURU1QT1JBUlkgTElORSBEVUUgVE8gRVJST1IgSU4gTE9PUFxudGVtcF9yZXN1bHRzIDwtIGZpbmFsX3Jlc3VsdFxuYGBgIn0= -->
-<pre class="r"><code># TEMPORARY LINE DUE TO ERROR IN LOOP
-temp_results &lt;- final_result</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>This is an OK way to track progress, it prints the score so I can track how far along it is. I will use progress bars next time.</p>
-<p>Another thing to consider is skipping iterations if the for loop fails. In this case, I got a 404 error opening a site. Need to skip these errors.</p>
-<p>Let’s carry on with the temp result.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGF0YXNldCA8LSBkby5jYWxsKFwicmJpbmRcIiwgdGVtcF9yZXN1bHRzKVxuYGBgIn0= -->
-<pre class="r"><code>dataset &lt;- do.call(&quot;rbind&quot;, temp_results)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2RhdGFzZXQgPC0gZG8uY2FsbChcInJiaW5kXCIsIHRlbXBfcmVzdWx0cylcbmBgYCJ9 -->
+<pre class="r"><code>#dataset &lt;- do.call(&quot;rbind&quot;, temp_results)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -322,87 +362,60 @@ temp_results &lt;- final_result</code></pre>
 <p>696 of the 1607 games have missing descriptions, which is 43%. Not ideal but workable</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGF0YXNldCR0aXRsZSA8LSBhcy5jaGFyYWN0ZXIoZGF0YXNldCR0aXRsZSlcbmRhdGFzZXQkcmVsZWFzZV9kYXRlIDwtIGFzLmNoYXJhY3RlcihkYXRhc2V0JHJlbGVhc2VfZGF0ZSlcbmRhdGFzZXQkcmVsZWFzZV9kYXRlIDwtIG1keShkYXRhc2V0JHJlbGVhc2VfZGF0ZSlcbmRhdGFzZXQkZGV2ZWxvcGVyIDwtIGFzLmNoYXJhY3RlcihkYXRhc2V0JGRldmVsb3BlcilcbmRhdGFzZXQkcHVibGlzaGVyIDwtIGFzLmNoYXJhY3RlcihkYXRhc2V0JHB1Ymxpc2hlcilcbmRhdGFzZXQkZ2VucmUgPC0gYXMuY2hhcmFjdGVyKGRhdGFzZXQkZ2VucmUpXG5kYXRhc2V0JHNjb3JlIDwtIGFzLm51bWVyaWMoYXMuY2hhcmFjdGVyKGRhdGFzZXQkc2NvcmUpKVxuZGF0YXNldCRyZXZpZXdfY291bnQgPC0gYXMuY2hhcmFjdGVyKGRhdGFzZXQkcmV2aWV3X2NvdW50KVxuZGF0YXNldCRyZXZpZXdfY291bnQgPC0gZ3N1YihcIiBDcml0aWNzXCIsIFwiXCIsIGRhdGFzZXQkcmV2aWV3X2NvdW50KVxuZGF0YXNldCRyZXZpZXdfY291bnQgPC0gYXMubnVtZXJpYyhkYXRhc2V0JHJldmlld19jb3VudClcbmRhdGFzZXQkZGVzY3JpcHRpb24gPC0gYXMuY2hhcmFjdGVyKGRhdGFzZXQkZGVzY3JpcHRpb24pXG5gYGAifQ== -->
-<pre class="r"><code>dataset$title &lt;- as.character(dataset$title)
-dataset$release_date &lt;- as.character(dataset$release_date)
-dataset$release_date &lt;- mdy(dataset$release_date)
-dataset$developer &lt;- as.character(dataset$developer)
-dataset$publisher &lt;- as.character(dataset$publisher)
-dataset$genre &lt;- as.character(dataset$genre)
-dataset$score &lt;- as.numeric(as.character(dataset$score))
-dataset$review_count &lt;- as.character(dataset$review_count)
-dataset$review_count &lt;- gsub(&quot; Critics&quot;, &quot;&quot;, dataset$review_count)
-dataset$review_count &lt;- as.numeric(dataset$review_count)
-dataset$description &lt;- as.character(dataset$description)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBkYXRhc2V0JHRpdGxlIDwtIGFzLmNoYXJhY3RlcihkYXRhc2V0JHRpdGxlKVxuIyBkYXRhc2V0JHJlbGVhc2VfZGF0ZSA8LSBhcy5jaGFyYWN0ZXIoZGF0YXNldCRyZWxlYXNlX2RhdGUpXG4jIGRhdGFzZXQkcmVsZWFzZV9kYXRlIDwtIG1keShkYXRhc2V0JHJlbGVhc2VfZGF0ZSlcbiMgZGF0YXNldCRkZXZlbG9wZXIgPC0gYXMuY2hhcmFjdGVyKGRhdGFzZXQkZGV2ZWxvcGVyKVxuIyBkYXRhc2V0JHB1Ymxpc2hlciA8LSBhcy5jaGFyYWN0ZXIoZGF0YXNldCRwdWJsaXNoZXIpXG4jIGRhdGFzZXQkZ2VucmUgPC0gYXMuY2hhcmFjdGVyKGRhdGFzZXQkZ2VucmUpXG4jIGRhdGFzZXQkc2NvcmUgPC0gYXMubnVtZXJpYyhhcy5jaGFyYWN0ZXIoZGF0YXNldCRzY29yZSkpXG4jIGRhdGFzZXQkcmV2aWV3X2NvdW50IDwtIGFzLmNoYXJhY3RlcihkYXRhc2V0JHJldmlld19jb3VudClcbiMgZGF0YXNldCRyZXZpZXdfY291bnQgPC0gZ3N1YihcIiBDcml0aWNzXCIsIFwiXCIsIGRhdGFzZXQkcmV2aWV3X2NvdW50KVxuIyBkYXRhc2V0JHJldmlld19jb3VudCA8LSBhcy5udW1lcmljKGRhdGFzZXQkcmV2aWV3X2NvdW50KVxuIyBkYXRhc2V0JGRlc2NyaXB0aW9uIDwtIGFzLmNoYXJhY3RlcihkYXRhc2V0JGRlc2NyaXB0aW9uKVxuYGBgIn0= -->
+<pre class="r"><code># dataset$title &lt;- as.character(dataset$title)
+# dataset$release_date &lt;- as.character(dataset$release_date)
+# dataset$release_date &lt;- mdy(dataset$release_date)
+# dataset$developer &lt;- as.character(dataset$developer)
+# dataset$publisher &lt;- as.character(dataset$publisher)
+# dataset$genre &lt;- as.character(dataset$genre)
+# dataset$score &lt;- as.numeric(as.character(dataset$score))
+# dataset$review_count &lt;- as.character(dataset$review_count)
+# dataset$review_count &lt;- gsub(&quot; Critics&quot;, &quot;&quot;, dataset$review_count)
+# dataset$review_count &lt;- as.numeric(dataset$review_count)
+# dataset$description &lt;- as.character(dataset$description)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+</div>
 <div id="replacing-for-loop-with-a-map-function" class="section level2">
 <h2>Replacing for loop with a ‘map’ function</h2>
 <p>This is the only problem now. It’s quite a big one actually as it prevents the pages from being scraped completely. The first 404 error stops the entire loop. I will use a map function to get around this. After this step the script can be assembled and the fun begins.</p>
-</div>
-<div id="description" class="section level2">
-<h2>Description</h2>
-<p>For some reason, the descriptions are split into two different CSS types, depending on whether the text is collapsed or fits into the page. I need a way to make a call for both types of CSS, save them to a separate row, detect which version is the longer, delete the short versions. This needs some testing.</p>
-<p>Find a few examples for both types and test them with both CSS selectors.</p>
-<ol style="list-style-type: decimal">
-<li>Test with a collapsible page type</li>
-<li>Test with a non-collapsible page type: ‘.product_summary .data span’</li>
-</ol>
-<p>Let’s see what happens when a collapsed page is scraped with the normal type.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29sbGFwc2libGVfZ2FtZV9kZXNjcmlwdGlvbiA8LSB0ZXN0X2dhbWVfcGFnZSAlPiUgaHRtbF9ub2RlcyhcIi5wcm9kdWN0X3N1bW1hcnkgLmRhdGEgc3BhblwiKSAlPiUgaHRtbF90ZXh0KClcblxuYGBgIn0= -->
-<pre class="r"><code>collapsible_game_description &lt;- test_game_page %&gt;% html_nodes(&quot;.product_summary .data span&quot;) %&gt;% html_text()
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gZG9jX25hbWVzcGFjZXMoZG9jKSA6IGV4dGVybmFsIHBvaW50ZXIgaXMgbm90IHZhbGlkXG4ifQ== -->
-<pre><code>Error in doc_namespaces(doc) : external pointer is not valid</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29sbGFwc2libGVfZ2FtZV9kZXNjcmlwdGlvbiA8LSBjb2xsYXBzaWJsZV9nYW1lX3BhZ2UgJT4lIGh0bWxfbm9kZXMoXCIucHJvZHVjdF9zdW1tYXJ5IC5kYXRhIHNwYW5cIikgJT4lIGh0bWxfdGV4dCgpW1sxXV1cblxuYGBgIn0= -->
-<pre class="r"><code>collapsible_game_description &lt;- collapsible_game_page %&gt;% html_nodes(&quot;.product_summary .data span&quot;) %&gt;% html_text()[[1]]
-</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4geG1sMjo6eG1sX3RleHQoeCwgdHJpbSA9IHRyaW0pIDogXG4gIGFyZ3VtZW50IFwieFwiIGlzIG1pc3NpbmcsIHdpdGggbm8gZGVmYXVsdFxuIn0= -->
-<pre><code>Error in xml2::xml_text(x, trim = trim) : 
-  argument &quot;x&quot; is missing, with no default</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>This works perfectly for GTA V. Does it work for Celeste? Yes, it does. So I just need to implement this and all is well.</p>
-</div>
-<div id="scraping-all-review-scores" class="section level2">
-<h2>Scraping all review scores</h2>
-<p>Requires testing, I could run a second loop that takes the title and scores of each iteration. Let’s see if it works.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGVzdF9nYW1lX3BhZ2UgPC0gcmVhZF9odG1sKFwiaHR0cHM6Ly93d3cubWV0YWNyaXRpYy5jb20vZ2FtZS9wbGF5c3RhdGlvbi00L3dvbGZlbnN0ZWluLWlpLXRoZS1uZXctY29sb3NzdXMvY3JpdGljLXJldmlld3NcIilcbnRlc3RfZ2FtZV90aXRsZSA8LSB0ZXN0X2dhbWVfcGFnZSAlPiUgaHRtbF9ub2RlcyhcImgxICwgI21haW4gLmluZGl2XCIpICU+JSBodG1sX3RleHQoKVxuYGBgIn0= -->
-<pre class="r"><code>test_game_page &lt;- read_html(&quot;https://www.metacritic.com/game/playstation-4/wolfenstein-ii-the-new-colossus/critic-reviews&quot;)
-test_game_title &lt;- test_game_page %&gt;% html_nodes(&quot;h1 , #main .indiv&quot;) %&gt;% html_text()</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBjb2xsYXBzaWJsZV9nYW1lX3BhZ2UgPC0gcmVhZF9odG1sKFwiaHR0cHM6Ly93d3cubWV0YWNyaXRpYy5jb20vZ2FtZS9wbGF5c3RhdGlvbi00L3dvbGZlbnN0ZWluLWlpLXRoZS1uZXctY29sb3NzdXNcIilcbiMgY29sbGFwc2libGVfZ2FtZV9kZXNjcmlwdGlvbiA8LSBjb2xsYXBzaWJsZV9nYW1lX3BhZ2UgJT4lIGh0bWxfbm9kZXMoXCIucHJvZHVjdF9zdW1tYXJ5IC5kYXRhIHNwYW5cIikgJT4lIGh0bWxfdGV4dCgpXG5gYGAifQ== -->
+<pre class="r"><code># collapsible_game_page &lt;- read_html(&quot;https://www.metacritic.com/game/playstation-4/wolfenstein-ii-the-new-colossus&quot;)
+# collapsible_game_description &lt;- collapsible_game_page %&gt;% html_nodes(&quot;.product_summary .data span&quot;) %&gt;% html_text()</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY3JpdGljX3Njb3JlX2xvb3Bfb3V0cHV0IDwtIHZlY3RvcihcImxpc3RcIiwgbGVuZ3RoKGFsbF9saW5rcykpXG5uYW1lcyhjcml0aWNfc2NvcmVfbG9vcF9vdXRwdXQpIDwtIGFsbF9saW5rc19yZXZpZXdzXG5cbmZvciAoaSBpbiBhbGxfbGlua3NfcmV2aWV3cykge1xuXG5jcml0aWNfcGFnZSA8LSByZWFkX2h0bWwoaSlcbmNyaXRpY19wYWdlX3Njb3JlIDwtIGNyaXRpY19wYWdlICU+JSBodG1sX25vZGVzKFwiaDEgLCAjbWFpbiAuaW5kaXZcIikgJT4lIGh0bWxfdGV4dCgpXG5jcml0aWNfc2NvcmVfbG9vcF9vdXRwdXRbW2ldXSA8LSBjcml0aWNfcGFnZV9zY29yZVxufVxuYGBgIn0= -->
-<pre class="r"><code>critic_score_loop_output &lt;- vector(&quot;list&quot;, length(all_links))
-names(critic_score_loop_output) &lt;- all_links_reviews
-
-for (i in all_links_reviews) {
-
-critic_page &lt;- read_html(i)
-critic_page_score &lt;- critic_page %&gt;% html_nodes(&quot;h1 , #main .indiv&quot;) %&gt;% html_text()
-critic_score_loop_output[[i]] &lt;- critic_page_score
-}</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBjb2xsYXBzaWJsZV9nYW1lX3BhZ2UgPC0gcmVhZF9odG1sKFwiaHR0cHM6Ly93d3cubWV0YWNyaXRpYy5jb20vZ2FtZS9wbGF5c3RhdGlvbi00L2NlbGVzdGVcIilcbiMgY29sbGFwc2libGVfZ2FtZV9kZXNjcmlwdGlvbiA8LSBjb2xsYXBzaWJsZV9nYW1lX3BhZ2UgJT4lIGh0bWxfbm9kZXMoXCIucHJvZHVjdF9zdW1tYXJ5IC5kYXRhIHNwYW5cIikgJT4lIGh0bWxfdGV4dCgpXG4jIHRlc3QgPC0gY29sbGFwc2libGVfZ2FtZV9kZXNjcmlwdGlvblsxXVxuYGBgIn0= -->
+<pre class="r"><code># collapsible_game_page &lt;- read_html(&quot;https://www.metacritic.com/game/playstation-4/celeste&quot;)
+# collapsible_game_description &lt;- collapsible_game_page %&gt;% html_nodes(&quot;.product_summary .data span&quot;) %&gt;% html_text()
+# test &lt;- collapsible_game_description[1]</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyByZXN1bHQgPC0gMFxuIyBmb3IoaSBpbiAxOjEwKXtcbiMgICB0cnkoeyAgICAgICAgICAgICAgICAjIHN0YXJ0IGNvZGUgYmxvY2tcbiMgICByZXN1bHQgPSByZXN1bHQgKyBpXG4jICAgbG9nKFwiYVwiKSAgICAgICAgICAgICAjIEkgZG8gbm90IGNhcmUgYWJvdXQgdGhpcyBlcnJvclxuIyAgIHJlc3VsdCA9IHJlc3VsdCArIGlcbiMgICB9LCBzaWxlbnQ9VFJVRSkgICAgICAjIGVuZCBvZiB0cnkgZnVuY3Rpb25cbiMgfVxuYGBgIn0= -->
+<pre class="r"><code># result &lt;- 0
+# for(i in 1:10){
+#   try({                # start code block
+#   result = result + i
+#   log(&quot;a&quot;)             # I do not care about this error
+#   result = result + i
+#   }, silent=TRUE)      # end of try function
+# }</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlNjcmFwaW5nIE1ldGFjcml0aWMgb3I6IEhvdyBJIExlYXJuZWQgdG8gU3RvcCBXb3JyeWluZyBhbmQgTG92ZSBMb29wcyINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCmBgYHtyfQ0KbGlicmFyeSh0aWR5dmVyc2UpDQpsaWJyYXJ5KHJ2ZXN0KQ0KbGlicmFyeShsdWJyaWRhdGUpDQpsaWJyYXJ5KHRpZHl0ZXh0KQ0KYGBgDQoNCkdldHRpbmcgdGhlIG51bWJlciBvZiBwYWdlcyB0byBzY3JhcGUNCg0KYGBge3J9DQpwYWdlX2luaXRpYWwgPC0gcmVhZF9odG1sKCJodHRwczovL3d3dy5tZXRhY3JpdGljLmNvbS9icm93c2UvZ2FtZXMvcmVsZWFzZS1kYXRlL2F2YWlsYWJsZS9wczQvbWV0YXNjb3JlP3BhZ2U9MCIpDQpub19wYWdlcyA8LSBwYWdlX2luaXRpYWwgJT4lIGh0bWxfbm9kZXMoIi5wYWdlX251bSIpICU+JSBodG1sX3RleHQoKQ0KYGBgDQoNCmBgYHtyfQ0KIyBSZWFkaW5nIGluIHBhZ2VzIGFuZCBleHRyYWN0aW5nIGh5cGVybGlua3MNCnJlc3VsdCA8LSB2ZWN0b3IoImxpc3QiLCBsZW5ndGgobm9fcGFnZXMpKQ0KDQpmb3IoaSBpbiAwOihsZW5ndGgobm9fcGFnZXMpLTEpKSB7DQogIHdlYnBhZ2UgPC0gcmVhZF9odG1sKHBhc3RlMCgiaHR0cHM6Ly93d3cubWV0YWNyaXRpYy5jb20vYnJvd3NlL2dhbWVzL3JlbGVhc2UtZGF0ZS9hdmFpbGFibGUvcHM0L21ldGFzY29yZT9wYWdlPSIsIGkpKQ0KICBsb29wX2xpbmtzIDwtIHdlYnBhZ2UgJT4lIGh0bWxfbm9kZXMoIiNtYWluIC5wcm9kdWN0X3RpdGxlIGEiKSAlPiUgaHRtbF9hdHRyKCdocmVmJykNCiAgbG9vcF9saW5rc19wcm9wZXIgPC0gcGFzdGUwKCJodHRwczovL3d3dy5tZXRhY3JpdGljLmNvbSIsIGxvb3BfbGlua3MpDQogIHJlc3VsdFtbaSsxXV0gPC0gbG9vcF9saW5rc19wcm9wZXINCn0NCg0KIyBKb2luaW5nIHJlc3VsdHMgaW50byBhIHNpbmdsZSB2ZWN0b3INCmFsbF9saW5rcyA8LSB1bmxpc3QocmVzdWx0KQ0KDQphbGxfbGlua3NfcmV2aWV3cyA8LSBwYXN0ZTAoYWxsX2xpbmtzLCAiL2NyaXRpYy1yZXZpZXdzIikNCmBgYA0KDQpgYGB7cn0NCiNnYW1lX3BhZ2UgPC0gcmVhZF9odG1sKCJodHRwczovL3d3dy5tZXRhY3JpdGljLmNvbS9nYW1lL3BsYXlzdGF0aW9uLTQvd29sZmVuc3RlaW4taWktdGhlLW5ldy1jb2xvc3N1cyIpDQpgYGANCg0KYGBge3J9DQojIEdldHRpbmcgYWxsIHRoZSBhdHRyaWJ1dGVzDQpmaW5hbF9yZXN1bHQgPC0gdmVjdG9yKCJsaXN0IiwgbGVuZ3RoKGFsbF9saW5rcykpDQpuYW1lcyhmaW5hbF9yZXN1bHQpIDwtIGFsbF9saW5rcw0KDQojIFNldCAwIGZvciBwcm9ncmVzcyBiYXINCm5vIDwtIDANCg0KZm9yKGkgaW4gYWxsX2xpbmtzKSB7DQojZ2FtZV9wYWdlIDwtIHJlYWRfaHRtbCgiaHR0cHM6Ly93d3cubWV0YWNyaXRpYy5jb20vZ2FtZS9wbGF5c3RhdGlvbi00L3dvbGZlbnN0ZWluLWlpLXRoZS1uZXctY29sb3NzdXMiKQ0KZ2FtZV9wYWdlIDwtIHJlYWRfaHRtbChpKQ0KDQp0aXRsZSA8LSBnYW1lX3BhZ2UgJT4lIGh0bWxfbm9kZXMoImgxIikgJT4lIGh0bWxfdGV4dCgpDQpyZWxlYXNlX2RhdGUgPC0gZ2FtZV9wYWdlICU+JSBodG1sX25vZGVzKCIucmVsZWFzZV9kYXRhIC5kYXRhIikgJT4lIGh0bWxfdGV4dCgpDQpkZXZlbG9wZXIgPC0gZ2FtZV9wYWdlICU+JSBodG1sX25vZGVzKCIuZGV2ZWxvcGVyIC5kYXRhIikgJT4lIGh0bWxfdGV4dCgpDQpwdWJsaXNoZXIgPC0gZ2FtZV9wYWdlICU+JSBodG1sX25vZGVzKCIucHVibGlzaGVyIGEiKSAlPiUgaHRtbF90ZXh0KCkNCmdlbnJlIDwtIGdhbWVfcGFnZSAlPiUgaHRtbF9ub2RlcygiLnByb2R1Y3RfZ2VucmUgLmRhdGEiKSAlPiUgaHRtbF90ZXh0KCkNCnNjb3JlIDwtIGdhbWVfcGFnZSAlPiUgaHRtbF9ub2RlcygiLnBvc2l0aXZlIHNwYW4sIC5taXhlZCBzcGFuLCAubmVnYXRpdmUgc3BhbiIpICU+JSBodG1sX3RleHQoKQ0KcmV2aWV3X2NvdW50IDwtIGdhbWVfcGFnZSAlPiUgaHRtbF9ub2RlcygiLmhpZ2hsaWdodF9tZXRhc2NvcmUgLmNvdW50IGEiKSAlPiUgaHRtbF90ZXh0KCkNCmRlc2NyaXB0aW9uIDwtIGdhbWVfcGFnZSAlPiUgaHRtbF9ub2RlcygiLmRhdGEgLmJsdXJiX2V4cGFuZGVkIikgJT4lIGh0bWxfdGV4dCgpDQoNCiMgQ2hlY2tpbmcgaWYgZGF0YSBpcyBwcmVzZW50LCBpZiBlbXB0eSwgZW50ZXIgTm90YXBwbGljYWJsZQ0KdGl0bGUgPC0gaWZlbHNlKGxlbmd0aCh0aXRsZSkgPT0gMCwgIk5vdGFwcGxpY2FibGUiLCB0aXRsZSkNCnJlbGVhc2VfZGF0ZSA8LSBpZmVsc2UobGVuZ3RoKHJlbGVhc2VfZGF0ZSkgPT0gMCwgIk5vdGFwcGxpY2FibGUiLCByZWxlYXNlX2RhdGUpDQpkZXZlbG9wZXIgPC0gaWZlbHNlKGxlbmd0aChkZXZlbG9wZXIpID09IDAsICJOb3RhcHBsaWNhYmxlIiwgZGV2ZWxvcGVyKQ0KcHVibGlzaGVyIDwtIGlmZWxzZShsZW5ndGgocHVibGlzaGVyKSA9PSAwLCAiTm90YXBwbGljYWJsZSIsIHB1Ymxpc2hlcikNCmdlbnJlIDwtIGlmZWxzZShsZW5ndGgoZ2VucmUpID09IDAsICJOb3RhcHBsaWNhYmxlIiwgZ2VucmUpDQpzY29yZSA8LSBpZmVsc2UobGVuZ3RoKHNjb3JlKSA9PSAwLCAiTm90YXBwbGljYWJsZSIsIHNjb3JlKQ0KcmV2aWV3X2NvdW50IDwtIGlmZWxzZShsZW5ndGgocmV2aWV3X2NvdW50KSA9PSAwLCAiTm90YXBwbGljYWJsZSIsIHJldmlld19jb3VudCkNCmRlc2NyaXB0aW9uIDwtIGlmZWxzZShsZW5ndGgoZGVzY3JpcHRpb24pID09IDAsICJOb3RhcHBsaWNhYmxlIiwgZGVzY3JpcHRpb24pDQoNCmdlbnJlIDwtIHBhc3RlKGdlbnJlLCBjb2xsYXBzZSA9ICcsICcpDQoNCiMgQ3JlYXRpbmcgdGFibGUgZW50cnkgZnJvbSB2ZWN0b3JzDQpmaW5hbF9yZXN1bHRbW2ldXSA8LSBkYXRhLmZyYW1lKHRpdGxlLCByZWxlYXNlX2RhdGUsIGRldmVsb3BlciwgcHVibGlzaGVyLCBnZW5yZSwgc2NvcmUsIHJldmlld19jb3VudCwgZGVzY3JpcHRpb24pDQoNCiMgUHJvZ3Jlc3MgYmFyDQpubyA8LSBubyArIDENCnByaW50KHBhc3RlMCgiUHJvZ3Jlc3M6ICIsIG5vLCAiLyIsIGxlbmd0aChhbGxfbGlua3MpLCAiLCAiLCByb3VuZChuby9sZW5ndGgoYWxsX2xpbmtzKSoxMDAsIDIpLCAiJSIpKQ0KfQ0KYGBgDQoNCmBgYHtyfQ0KIyBURU1QT1JBUlkgTElORSBEVUUgVE8gRVJST1IgSU4gTE9PUA0KdGVtcF9yZXN1bHRzIDwtIGZpbmFsX3Jlc3VsdA0KYGBgDQoNClRoaXMgaXMgYW4gT0sgd2F5IHRvIHRyYWNrIHByb2dyZXNzLCBpdCBwcmludHMgdGhlIHNjb3JlIHNvIEkgY2FuIHRyYWNrIGhvdyBmYXIgYWxvbmcgaXQgaXMuIEkgd2lsbCB1c2UgcHJvZ3Jlc3MgYmFycyBuZXh0IHRpbWUuDQoNCkFub3RoZXIgdGhpbmcgdG8gY29uc2lkZXIgaXMgc2tpcHBpbmcgaXRlcmF0aW9ucyBpZiB0aGUgZm9yIGxvb3AgZmFpbHMuIEluIHRoaXMgY2FzZSwgSSBnb3QgYSA0MDQgZXJyb3Igb3BlbmluZyBhIHNpdGUuIE5lZWQgdG8gc2tpcCB0aGVzZSBlcnJvcnMuDQoNCkxldCdzIGNhcnJ5IG9uIHdpdGggdGhlIHRlbXAgcmVzdWx0Lg0KIA0KDQpgYGB7cn0NCmRhdGFzZXQgPC0gZG8uY2FsbCgicmJpbmQiLCB0ZW1wX3Jlc3VsdHMpDQpgYGANCg0KVGhlIHNjcmlwdCBpcyBub3QgcGVyZmVjdCBhcyBpdCB0cnVuY2F0ZXMgdGhlIGdlbnJlIHRvIGEgc2luZ2xlIHZhbHVlLCBzb21ldGhpbmcgdG8gbG9vayBvdXQgZm9yLiBBbHNvLCB0aGUgZGVzY3JpcHRpb24gaXMgdGFrZW4gYXMgYSBzaW5nbGUgc2NyYXBlZCBjYXRlZ29yeSwgd2hpY2ggbGVhdmVzIGEgbG90IG9mIHZhbHVlcyBlbXB0eS4gSSdtIGZhaXJseSBoYXBweSB3aXRoIHRoaXMgb3ZlcmFsbC4gVGltZSB0byBjbGVhbiB1cCB0aGUgZGF0YS4NCg0KNjk2IG9mIHRoZSAxNjA3IGdhbWVzIGhhdmUgbWlzc2luZyBkZXNjcmlwdGlvbnMsIHdoaWNoIGlzIDQzJS4gTm90IGlkZWFsIGJ1dCB3b3JrYWJsZQ0KDQpgYGB7cn0NCmRhdGFzZXQkdGl0bGUgPC0gYXMuY2hhcmFjdGVyKGRhdGFzZXQkdGl0bGUpDQpkYXRhc2V0JHJlbGVhc2VfZGF0ZSA8LSBhcy5jaGFyYWN0ZXIoZGF0YXNldCRyZWxlYXNlX2RhdGUpDQpkYXRhc2V0JHJlbGVhc2VfZGF0ZSA8LSBtZHkoZGF0YXNldCRyZWxlYXNlX2RhdGUpDQpkYXRhc2V0JGRldmVsb3BlciA8LSBhcy5jaGFyYWN0ZXIoZGF0YXNldCRkZXZlbG9wZXIpDQpkYXRhc2V0JHB1Ymxpc2hlciA8LSBhcy5jaGFyYWN0ZXIoZGF0YXNldCRwdWJsaXNoZXIpDQpkYXRhc2V0JGdlbnJlIDwtIGFzLmNoYXJhY3RlcihkYXRhc2V0JGdlbnJlKQ0KZGF0YXNldCRzY29yZSA8LSBhcy5udW1lcmljKGFzLmNoYXJhY3RlcihkYXRhc2V0JHNjb3JlKSkNCmRhdGFzZXQkcmV2aWV3X2NvdW50IDwtIGFzLmNoYXJhY3RlcihkYXRhc2V0JHJldmlld19jb3VudCkNCmRhdGFzZXQkcmV2aWV3X2NvdW50IDwtIGdzdWIoIiBDcml0aWNzIiwgIiIsIGRhdGFzZXQkcmV2aWV3X2NvdW50KQ0KZGF0YXNldCRyZXZpZXdfY291bnQgPC0gYXMubnVtZXJpYyhkYXRhc2V0JHJldmlld19jb3VudCkNCmRhdGFzZXQkZGVzY3JpcHRpb24gPC0gYXMuY2hhcmFjdGVyKGRhdGFzZXQkZGVzY3JpcHRpb24pDQpgYGANCg0KIyMgUmVwbGFjaW5nIGZvciBsb29wIHdpdGggYSAnbWFwJyBmdW5jdGlvbg0KDQpUaGlzIGlzIHRoZSBvbmx5IHByb2JsZW0gbm93LiBJdCdzIHF1aXRlIGEgYmlnIG9uZSBhY3R1YWxseSBhcyBpdCBwcmV2ZW50cyB0aGUgcGFnZXMgZnJvbSBiZWluZyBzY3JhcGVkIGNvbXBsZXRlbHkuIFRoZSBmaXJzdCA0MDQgZXJyb3Igc3RvcHMgdGhlIGVudGlyZSBsb29wLiBJIHdpbGwgdXNlIGEgbWFwIGZ1bmN0aW9uIHRvIGdldCBhcm91bmQgdGhpcy4gQWZ0ZXIgdGhpcyBzdGVwIHRoZSBzY3JpcHQgY2FuIGJlIGFzc2VtYmxlZCBhbmQgdGhlIGZ1biBiZWdpbnMuDQoNCiMjIERlc2NyaXB0aW9uDQoNCkZvciBzb21lIHJlYXNvbiwgdGhlIGRlc2NyaXB0aW9ucyBhcmUgc3BsaXQgaW50byB0d28gZGlmZmVyZW50IENTUyB0eXBlcywgZGVwZW5kaW5nIG9uIHdoZXRoZXIgdGhlIHRleHQgaXMgY29sbGFwc2VkIG9yIGZpdHMgaW50byB0aGUgcGFnZS4gSSBuZWVkIGEgd2F5IHRvIG1ha2UgYSBjYWxsIGZvciBib3RoIHR5cGVzIG9mIENTUywgc2F2ZSB0aGVtIHRvIGEgc2VwYXJhdGUgcm93LCBkZXRlY3Qgd2hpY2ggdmVyc2lvbiBpcyB0aGUgbG9uZ2VyLCBkZWxldGUgdGhlIHNob3J0IHZlcnNpb25zLiBUaGlzIG5lZWRzIHNvbWUgdGVzdGluZy4NCg0KRmluZCBhIGZldyBleGFtcGxlcyBmb3IgYm90aCB0eXBlcyBhbmQgdGVzdCB0aGVtIHdpdGggYm90aCBDU1Mgc2VsZWN0b3JzLg0KDQoxLiBUZXN0IHdpdGggYSBjb2xsYXBzaWJsZSBwYWdlIHR5cGUNCjIuIFRlc3Qgd2l0aCBhIG5vbi1jb2xsYXBzaWJsZSBwYWdlIHR5cGU6ICcucHJvZHVjdF9zdW1tYXJ5IC5kYXRhIHNwYW4nDQoNCkxldCdzIHNlZSB3aGF0IGhhcHBlbnMgd2hlbiBhIGNvbGxhcHNlZCBwYWdlIGlzIHNjcmFwZWQgd2l0aCB0aGUgbm9ybWFsIHR5cGUuDQoNCmBgYHtyfQ0KY29sbGFwc2libGVfZ2FtZV9wYWdlIDwtIHJlYWRfaHRtbCgiaHR0cHM6Ly93d3cubWV0YWNyaXRpYy5jb20vZ2FtZS9wbGF5c3RhdGlvbi00L3dvbGZlbnN0ZWluLWlpLXRoZS1uZXctY29sb3NzdXMiKQ0KY29sbGFwc2libGVfZ2FtZV9kZXNjcmlwdGlvbiA8LSBjb2xsYXBzaWJsZV9nYW1lX3BhZ2UgJT4lIGh0bWxfbm9kZXMoIi5wcm9kdWN0X3N1bW1hcnkgLmRhdGEgc3BhbiIpICU+JSBodG1sX3RleHQoKQ0KYGBgDQoNCmBgYHtyfQ0KY29sbGFwc2libGVfZ2FtZV9wYWdlIDwtIHJlYWRfaHRtbCgiaHR0cHM6Ly93d3cubWV0YWNyaXRpYy5jb20vZ2FtZS9wbGF5c3RhdGlvbi00L2NlbGVzdGUiKQ0KY29sbGFwc2libGVfZ2FtZV9kZXNjcmlwdGlvbiA8LSBjb2xsYXBzaWJsZV9nYW1lX3BhZ2UgJT4lIGh0bWxfbm9kZXMoIi5wcm9kdWN0X3N1bW1hcnkgLmRhdGEgc3BhbiIpICU+JSBodG1sX3RleHQoKQ0KdGVzdCA8LSBjb2xsYXBzaWJsZV9nYW1lX2Rlc2NyaXB0aW9uWzFdDQpgYGANCg0KVGhpcyB3b3JrcyBwZXJmZWN0bHkgZm9yIEdUQSBWLiBEb2VzIGl0IHdvcmsgZm9yIENlbGVzdGU/IFllcywgaXQgZG9lcy4gU28gSSBqdXN0IG5lZWQgdG8gaW1wbGVtZW50IHRoaXMgYW5kIGFsbCBpcyB3ZWxsLg0KDQojIyBTY3JhcGluZyBhbGwgcmV2aWV3IHNjb3Jlcw0KDQpSZXF1aXJlcyB0ZXN0aW5nLCBJIGNvdWxkIHJ1biBhIHNlY29uZCBsb29wIHRoYXQgdGFrZXMgdGhlIHRpdGxlIGFuZCBzY29yZXMgb2YgZWFjaCBpdGVyYXRpb24uIExldCdzIHNlZSBpZiBpdCB3b3Jrcy4NCg0KYGBge3J9DQp0ZXN0X2dhbWVfcGFnZSA8LSByZWFkX2h0bWwoImh0dHBzOi8vd3d3Lm1ldGFjcml0aWMuY29tL2dhbWUvcGxheXN0YXRpb24tNC93b2xmZW5zdGVpbi1paS10aGUtbmV3LWNvbG9zc3VzL2NyaXRpYy1yZXZpZXdzIikNCnRlc3RfZ2FtZV90aXRsZSA8LSB0ZXN0X2dhbWVfcGFnZSAlPiUgaHRtbF9ub2RlcygiaDEgLCAjbWFpbiAuaW5kaXYiKSAlPiUgaHRtbF90ZXh0KCkNCmBgYA0KDQpgYGB7cn0NCmNyaXRpY19zY29yZV9sb29wX291dHB1dCA8LSB2ZWN0b3IoImxpc3QiLCBsZW5ndGgoYWxsX2xpbmtzKSkNCm5hbWVzKGNyaXRpY19zY29yZV9sb29wX291dHB1dCkgPC0gYWxsX2xpbmtzX3Jldmlld3MNCg0KZm9yIChpIGluIGFsbF9saW5rc19yZXZpZXdzKSB7DQoNCmNyaXRpY19wYWdlIDwtIHJlYWRfaHRtbChpKQ0KY3JpdGljX3BhZ2Vfc2NvcmUgPC0gY3JpdGljX3BhZ2UgJT4lIGh0bWxfbm9kZXMoImgxICwgI21haW4gLmluZGl2IikgJT4lIGh0bWxfdGV4dCgpDQpjcml0aWNfc2NvcmVfbG9vcF9vdXRwdXRbW2ldXSA8LSBjcml0aWNfcGFnZV9zY29yZQ0KfQ0KYGBgDQo=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlNjcmFwaW5nIE1ldGFjcml0aWMgb3I6IEhvdyBJIExlYXJuZWQgdG8gU3RvcCBXb3JyeWluZyBhbmQgTG92ZSBMb29wcyINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQpUaGUgc2NyaXB0IHdvcmtzIGZpbmUuIEkgd2lsbCBkbyB0aGUgcmVzdCBvZiB0aGUgZGF0YSB3cmFuZ2xpbmcgYW5kIHdyaXRlIHVwIHRoZSBhbmFseXNpcyBsYXRlci4NCg0KYGBge3J9DQpsaWJyYXJ5KHRpZHl2ZXJzZSkNCmxpYnJhcnkocnZlc3QpDQpsaWJyYXJ5KGx1YnJpZGF0ZSkNCmxpYnJhcnkodGlkeXRleHQpDQpgYGANCg0KYGBge3J9DQpwYWdlX2luaXRpYWwgPC0gcmVhZF9odG1sKCJodHRwczovL3d3dy5tZXRhY3JpdGljLmNvbS9icm93c2UvZ2FtZXMvcmVsZWFzZS1kYXRlL2F2YWlsYWJsZS9wczQvbWV0YXNjb3JlP3BhZ2U9MCIpDQpub19wYWdlcyA8LSBwYWdlX2luaXRpYWwgJT4lIGh0bWxfbm9kZXMoIi5wYWdlX251bSIpICU+JSBodG1sX3RleHQoKQ0KYGBgDQoNCmBgYHtyfQ0KIyBSZWFkaW5nIGluIHBhZ2VzIGFuZCBleHRyYWN0aW5nIGh5cGVybGlua3MNCnJlc3VsdCA8LSB2ZWN0b3IoImxpc3QiLCBsZW5ndGgobm9fcGFnZXMpKQ0KDQpmb3IoaSBpbiAwOihsZW5ndGgobm9fcGFnZXMpLTEpKSB7DQogIHdlYnBhZ2UgPC0gcmVhZF9odG1sKHBhc3RlMCgiaHR0cHM6Ly93d3cubWV0YWNyaXRpYy5jb20vYnJvd3NlL2dhbWVzL3JlbGVhc2UtZGF0ZS9hdmFpbGFibGUvcHM0L21ldGFzY29yZT9wYWdlPSIsIGkpKQ0KICBsb29wX2xpbmtzIDwtIHdlYnBhZ2UgJT4lIGh0bWxfbm9kZXMoIiNtYWluIC5wcm9kdWN0X3RpdGxlIGEiKSAlPiUgaHRtbF9hdHRyKCdocmVmJykNCiAgbG9vcF9saW5rc19wcm9wZXIgPC0gcGFzdGUwKCJodHRwczovL3d3dy5tZXRhY3JpdGljLmNvbSIsIGxvb3BfbGlua3MpDQogIHJlc3VsdFtbaSsxXV0gPC0gbG9vcF9saW5rc19wcm9wZXINCn0NCg0KIyBKb2luaW5nIHJlc3VsdHMgaW50byBhIHNpbmdsZSB2ZWN0b3INCmFsbF9saW5rcyA8LSB1bmxpc3QocmVzdWx0KQ0KYWxsX2xpbmtzX3Jldmlld3MgPC0gcGFzdGUwKGFsbF9saW5rcywgIi9jcml0aWMtcmV2aWV3cyIpDQpgYGANCg0KYGBge3J9DQojIEdldHRpbmcgYWxsIHRoZSBhdHRyaWJ1dGVzDQpmaW5hbF9yZXN1bHQgPC0gdmVjdG9yKCJsaXN0IiwgbGVuZ3RoKGFsbF9saW5rcykpDQpuYW1lcyhmaW5hbF9yZXN1bHQpIDwtIGFsbF9saW5rcw0KDQojIFNldCAwIGZvciBwcm9ncmVzcyBiYXINCm5vIDwtIDANCg0KZm9yKGkgaW4gYWxsX2xpbmtzKSB7DQogIA0KIyBTdGFydCB0aGUgdHJ5Y2F0Y2gNCnRyeSh7ICAgIA0KDQpnYW1lX3BhZ2UgPC0gcmVhZF9odG1sKGkpDQoNCnRpdGxlIDwtIGdhbWVfcGFnZSAlPiUgaHRtbF9ub2RlcygiaDEiKSAlPiUgaHRtbF90ZXh0KCkNCnJlbGVhc2VfZGF0ZSA8LSBnYW1lX3BhZ2UgJT4lIGh0bWxfbm9kZXMoIi5yZWxlYXNlX2RhdGEgLmRhdGEiKSAlPiUgaHRtbF90ZXh0KCkNCmRldmVsb3BlciA8LSBnYW1lX3BhZ2UgJT4lIGh0bWxfbm9kZXMoIi5kZXZlbG9wZXIgLmRhdGEiKSAlPiUgaHRtbF90ZXh0KCkNCnB1Ymxpc2hlciA8LSBnYW1lX3BhZ2UgJT4lIGh0bWxfbm9kZXMoIi5wdWJsaXNoZXIgYSIpICU+JSBodG1sX3RleHQoKQ0KZ2VucmUgPC0gZ2FtZV9wYWdlICU+JSBodG1sX25vZGVzKCIucHJvZHVjdF9nZW5yZSAuZGF0YSIpICU+JSBodG1sX3RleHQoKQ0Kc2NvcmUgPC0gZ2FtZV9wYWdlICU+JSBodG1sX25vZGVzKCIucG9zaXRpdmUgc3BhbiwgLm1peGVkIHNwYW4sIC5uZWdhdGl2ZSBzcGFuIikgJT4lIGh0bWxfdGV4dCgpDQpyZXZpZXdfY291bnQgPC0gZ2FtZV9wYWdlICU+JSBodG1sX25vZGVzKCIuaGlnaGxpZ2h0X21ldGFzY29yZSAuY291bnQgYSIpICU+JSBodG1sX3RleHQoKQ0KZGVzY3JpcHRpb24gPC0gZ2FtZV9wYWdlICU+JSBodG1sX25vZGVzKCIucHJvZHVjdF9zdW1tYXJ5IC5kYXRhIHNwYW4iKSAlPiUgaHRtbF90ZXh0KCkNCmRlc2NyaXB0aW9uIDwtIGRlc2NyaXB0aW9uWzFdDQoNCiMgQ2hlY2tpbmcgaWYgZGF0YSBpcyBwcmVzZW50LCBpZiBlbXB0eSwgZW50ZXIgTm90YXBwbGljYWJsZQ0KdGl0bGUgPC0gaWZlbHNlKGxlbmd0aCh0aXRsZSkgPT0gMCwgIk5vdGFwcGxpY2FibGUiLCB0aXRsZSkNCnJlbGVhc2VfZGF0ZSA8LSBpZmVsc2UobGVuZ3RoKHJlbGVhc2VfZGF0ZSkgPT0gMCwgIk5vdGFwcGxpY2FibGUiLCByZWxlYXNlX2RhdGUpDQpkZXZlbG9wZXIgPC0gaWZlbHNlKGxlbmd0aChkZXZlbG9wZXIpID09IDAsICJOb3RhcHBsaWNhYmxlIiwgZGV2ZWxvcGVyKQ0KcHVibGlzaGVyIDwtIGlmZWxzZShsZW5ndGgocHVibGlzaGVyKSA9PSAwLCAiTm90YXBwbGljYWJsZSIsIHB1Ymxpc2hlcikNCmdlbnJlIDwtIGlmZWxzZShsZW5ndGgoZ2VucmUpID09IDAsICJOb3RhcHBsaWNhYmxlIiwgZ2VucmUpDQpzY29yZSA8LSBpZmVsc2UobGVuZ3RoKHNjb3JlKSA9PSAwLCAiTm90YXBwbGljYWJsZSIsIHNjb3JlKQ0KcmV2aWV3X2NvdW50IDwtIGlmZWxzZShsZW5ndGgocmV2aWV3X2NvdW50KSA9PSAwLCAiTm90YXBwbGljYWJsZSIsIHJldmlld19jb3VudCkNCmRlc2NyaXB0aW9uIDwtIGlmZWxzZShsZW5ndGgoZGVzY3JpcHRpb24pID09IDAsICJOb3RhcHBsaWNhYmxlIiwgZGVzY3JpcHRpb24pDQoNCmdlbnJlIDwtIHBhc3RlKGdlbnJlLCBjb2xsYXBzZSA9ICcsICcpDQoNCiMgQ3JlYXRpbmcgdGFibGUgZW50cnkgZnJvbSB2ZWN0b3JzDQpmaW5hbF9yZXN1bHRbW2ldXSA8LSBkYXRhLmZyYW1lKHRpdGxlLCByZWxlYXNlX2RhdGUsIGRldmVsb3BlciwgcHVibGlzaGVyLCBnZW5yZSwgc2NvcmUsIHJldmlld19jb3VudCwgZGVzY3JpcHRpb24pDQoNCiMgRW5kIHRoZSB0cnljYXRjaA0KfSwgc2lsZW50PVRSVUUpDQojIFByb2dyZXNzIGJhcg0Kbm8gPC0gbm8gKyAxDQpwcmludChwYXN0ZTAoIlByb2dyZXNzOiAiLCBubywgIi8iLCBsZW5ndGgoYWxsX2xpbmtzKSwgIiwgIiwgcm91bmQobm8vbGVuZ3RoKGFsbF9saW5rcykqMTAwLCAyKSwgIiUiKSkNCn0NCmBgYA0KDQojIyBTY3JhcGluZyBhbGwgcmV2aWV3IHNjb3Jlcw0KDQpgYGB7cn0NCmNyaXRpY19zY29yZV9sb29wX291dHB1dCA8LSB2ZWN0b3IoImxpc3QiLCBsZW5ndGgoYWxsX2xpbmtzKSkNCm5hbWVzKGNyaXRpY19zY29yZV9sb29wX291dHB1dCkgPC0gYWxsX2xpbmtzX3Jldmlld3MNCm5vcyA8LSAwDQoNCmZvciAoaSBpbiBhbGxfbGlua3NfcmV2aWV3cykgew0KDQp0cnkoeyANCiAgIA0KY3JpdGljX3BhZ2UgPC0gcmVhZF9odG1sKGkpDQpjcml0aWNfcGFnZV9zY29yZSA8LSBjcml0aWNfcGFnZSAlPiUgaHRtbF9ub2RlcygiaDEgLCAjbWFpbiAuaW5kaXYiKSAlPiUgaHRtbF90ZXh0KCkNCmNyaXRpY19zY29yZV9sb29wX291dHB1dFtbaV1dIDwtIGNyaXRpY19wYWdlX3Njb3JlDQoNCn0sIHNpbGVudD1UUlVFKQ0KDQpub3MgPC0gbm9zICsgMQ0KcHJpbnQocGFzdGUwKCJQcm9ncmVzczogIiwgbm9zLCAiLyIsIGxlbmd0aChhbGxfbGlua3NfcmV2aWV3cyksICIsICIsIHJvdW5kKG5vcy9sZW5ndGgoYWxsX2xpbmtzX3Jldmlld3MpKjEwMCwgMiksICIlIikpDQp9DQpgYGANCg0KYGBge3J9DQojZGF0YXNldCA8LSBkby5jYWxsKCJyYmluZCIsIHRlbXBfcmVzdWx0cykNCmBgYA0KDQpUaGUgc2NyaXB0IGlzIG5vdCBwZXJmZWN0IGFzIGl0IHRydW5jYXRlcyB0aGUgZ2VucmUgdG8gYSBzaW5nbGUgdmFsdWUsIHNvbWV0aGluZyB0byBsb29rIG91dCBmb3IuIEFsc28sIHRoZSBkZXNjcmlwdGlvbiBpcyB0YWtlbiBhcyBhIHNpbmdsZSBzY3JhcGVkIGNhdGVnb3J5LCB3aGljaCBsZWF2ZXMgYSBsb3Qgb2YgdmFsdWVzIGVtcHR5LiBJJ20gZmFpcmx5IGhhcHB5IHdpdGggdGhpcyBvdmVyYWxsLiBUaW1lIHRvIGNsZWFuIHVwIHRoZSBkYXRhLg0KDQo2OTYgb2YgdGhlIDE2MDcgZ2FtZXMgaGF2ZSBtaXNzaW5nIGRlc2NyaXB0aW9ucywgd2hpY2ggaXMgNDMlLiBOb3QgaWRlYWwgYnV0IHdvcmthYmxlDQoNCmBgYHtyfQ0KIyBkYXRhc2V0JHRpdGxlIDwtIGFzLmNoYXJhY3RlcihkYXRhc2V0JHRpdGxlKQ0KIyBkYXRhc2V0JHJlbGVhc2VfZGF0ZSA8LSBhcy5jaGFyYWN0ZXIoZGF0YXNldCRyZWxlYXNlX2RhdGUpDQojIGRhdGFzZXQkcmVsZWFzZV9kYXRlIDwtIG1keShkYXRhc2V0JHJlbGVhc2VfZGF0ZSkNCiMgZGF0YXNldCRkZXZlbG9wZXIgPC0gYXMuY2hhcmFjdGVyKGRhdGFzZXQkZGV2ZWxvcGVyKQ0KIyBkYXRhc2V0JHB1Ymxpc2hlciA8LSBhcy5jaGFyYWN0ZXIoZGF0YXNldCRwdWJsaXNoZXIpDQojIGRhdGFzZXQkZ2VucmUgPC0gYXMuY2hhcmFjdGVyKGRhdGFzZXQkZ2VucmUpDQojIGRhdGFzZXQkc2NvcmUgPC0gYXMubnVtZXJpYyhhcy5jaGFyYWN0ZXIoZGF0YXNldCRzY29yZSkpDQojIGRhdGFzZXQkcmV2aWV3X2NvdW50IDwtIGFzLmNoYXJhY3RlcihkYXRhc2V0JHJldmlld19jb3VudCkNCiMgZGF0YXNldCRyZXZpZXdfY291bnQgPC0gZ3N1YigiIENyaXRpY3MiLCAiIiwgZGF0YXNldCRyZXZpZXdfY291bnQpDQojIGRhdGFzZXQkcmV2aWV3X2NvdW50IDwtIGFzLm51bWVyaWMoZGF0YXNldCRyZXZpZXdfY291bnQpDQojIGRhdGFzZXQkZGVzY3JpcHRpb24gPC0gYXMuY2hhcmFjdGVyKGRhdGFzZXQkZGVzY3JpcHRpb24pDQpgYGANCg0KIyMgUmVwbGFjaW5nIGZvciBsb29wIHdpdGggYSAnbWFwJyBmdW5jdGlvbg0KDQpUaGlzIGlzIHRoZSBvbmx5IHByb2JsZW0gbm93LiBJdCdzIHF1aXRlIGEgYmlnIG9uZSBhY3R1YWxseSBhcyBpdCBwcmV2ZW50cyB0aGUgcGFnZXMgZnJvbSBiZWluZyBzY3JhcGVkIGNvbXBsZXRlbHkuIFRoZSBmaXJzdCA0MDQgZXJyb3Igc3RvcHMgdGhlIGVudGlyZSBsb29wLiBJIHdpbGwgdXNlIGEgbWFwIGZ1bmN0aW9uIHRvIGdldCBhcm91bmQgdGhpcy4gQWZ0ZXIgdGhpcyBzdGVwIHRoZSBzY3JpcHQgY2FuIGJlIGFzc2VtYmxlZCBhbmQgdGhlIGZ1biBiZWdpbnMuDQoNCg0KYGBge3J9DQojIGNvbGxhcHNpYmxlX2dhbWVfcGFnZSA8LSByZWFkX2h0bWwoImh0dHBzOi8vd3d3Lm1ldGFjcml0aWMuY29tL2dhbWUvcGxheXN0YXRpb24tNC93b2xmZW5zdGVpbi1paS10aGUtbmV3LWNvbG9zc3VzIikNCiMgY29sbGFwc2libGVfZ2FtZV9kZXNjcmlwdGlvbiA8LSBjb2xsYXBzaWJsZV9nYW1lX3BhZ2UgJT4lIGh0bWxfbm9kZXMoIi5wcm9kdWN0X3N1bW1hcnkgLmRhdGEgc3BhbiIpICU+JSBodG1sX3RleHQoKQ0KYGBgDQoNCmBgYHtyfQ0KIyBjb2xsYXBzaWJsZV9nYW1lX3BhZ2UgPC0gcmVhZF9odG1sKCJodHRwczovL3d3dy5tZXRhY3JpdGljLmNvbS9nYW1lL3BsYXlzdGF0aW9uLTQvY2VsZXN0ZSIpDQojIGNvbGxhcHNpYmxlX2dhbWVfZGVzY3JpcHRpb24gPC0gY29sbGFwc2libGVfZ2FtZV9wYWdlICU+JSBodG1sX25vZGVzKCIucHJvZHVjdF9zdW1tYXJ5IC5kYXRhIHNwYW4iKSAlPiUgaHRtbF90ZXh0KCkNCiMgdGVzdCA8LSBjb2xsYXBzaWJsZV9nYW1lX2Rlc2NyaXB0aW9uWzFdDQpgYGANCg0KDQpgYGB7cn0NCiMgcmVzdWx0IDwtIDANCiMgZm9yKGkgaW4gMToxMCl7DQojICAgdHJ5KHsgICAgICAgICAgICAgICAgIyBzdGFydCBjb2RlIGJsb2NrDQojICAgcmVzdWx0ID0gcmVzdWx0ICsgaQ0KIyAgIGxvZygiYSIpICAgICAgICAgICAgICMgSSBkbyBub3QgY2FyZSBhYm91dCB0aGlzIGVycm9yDQojICAgcmVzdWx0ID0gcmVzdWx0ICsgaQ0KIyAgIH0sIHNpbGVudD1UUlVFKSAgICAgICMgZW5kIG9mIHRyeSBmdW5jdGlvbg0KIyB9DQpgYGANCg0KDQo=</div>
 
 
 
