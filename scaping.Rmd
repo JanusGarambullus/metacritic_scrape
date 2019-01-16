@@ -103,41 +103,28 @@ print(paste0("Progress: ", nos, "/", length(all_links_reviews), ", ", round(nos/
 ```
 
 ```{r}
-#dataset <- do.call("rbind", temp_results)
-```
-
-The script is not perfect as it truncates the genre to a single value, something to look out for. Also, the description is taken as a single scraped category, which leaves a lot of values empty. I'm fairly happy with this overall. Time to clean up the data.
-
-696 of the 1607 games have missing descriptions, which is 43%. Not ideal but workable
-
-```{r}
-# dataset$title <- as.character(dataset$title)
-# dataset$release_date <- as.character(dataset$release_date)
-# dataset$release_date <- mdy(dataset$release_date)
-# dataset$developer <- as.character(dataset$developer)
-# dataset$publisher <- as.character(dataset$publisher)
-# dataset$genre <- as.character(dataset$genre)
-# dataset$score <- as.numeric(as.character(dataset$score))
-# dataset$review_count <- as.character(dataset$review_count)
-# dataset$review_count <- gsub(" Critics", "", dataset$review_count)
-# dataset$review_count <- as.numeric(dataset$review_count)
-# dataset$description <- as.character(dataset$description)
-```
-
-## Replacing for loop with a 'map' function
-
-This is the only problem now. It's quite a big one actually as it prevents the pages from being scraped completely. The first 404 error stops the entire loop. I will use a map function to get around this. After this step the script can be assembled and the fun begins.
-
-
-```{r}
-# collapsible_game_page <- read_html("https://www.metacritic.com/game/playstation-4/wolfenstein-ii-the-new-colossus")
-# collapsible_game_description <- collapsible_game_page %>% html_nodes(".product_summary .data span") %>% html_text()
+dataset <- do.call("rbind", final_result)
 ```
 
 ```{r}
-# collapsible_game_page <- read_html("https://www.metacritic.com/game/playstation-4/celeste")
-# collapsible_game_description <- collapsible_game_page %>% html_nodes(".product_summary .data span") %>% html_text()
-# test <- collapsible_game_description[1]
+dataset$title <- as.character(dataset$title)
+dataset$release_date <- as.character(dataset$release_date)
+dataset$release_date <- mdy(dataset$release_date)
+dataset$developer <- as.character(dataset$developer)
+dataset$publisher <- as.character(dataset$publisher)
+dataset$genre <- as.character(dataset$genre)
+dataset$score <- as.numeric(as.character(dataset$score))
+dataset$review_count <- as.character(dataset$review_count)
+dataset$review_count <- gsub(" Critics", "", dataset$review_count)
+dataset$review_count <- as.numeric(dataset$review_count)
+dataset$description <- as.character(dataset$description)
+dataset$description <- gsub("… Expand", "", dataset$description)
+
+rownames(dataset) <- 1:length(dataset$title)
+```
+
+```{r}
+
 ```
 
 
