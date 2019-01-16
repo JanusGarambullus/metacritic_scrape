@@ -128,18 +128,32 @@ test <- critic_score_loop_output
 maxes <- vector("numeric", length(all_links_reviews))
 
 for (i in 1:length(all_links_reviews)) {
-test[[i]] <- Kmisc::pad(test[[i]], maxes)
+maxes[i] <- length(test[[i]])
 }
 
-max(maxes)
+max_length <- max(maxes)
 
-for (i in length(all_links_reviews)) {
-  
+for (i in 1:length(all_links_reviews)) {
+length(test[[i]]) <- max_length  
 }
 
-test_1 <- do.call(cbind.data.frame, critic_score_loop_output)
+# I have no idea what went wrong here
+length(test[["https://www.metacritic.com/game/playstation-4/lethal-vr/critic-reviews"]]) <- max_length
+
+test_1 <- do.call(cbind.data.frame, test)
+test_2 <- test_1
+
+for (i in 1:ncol(test_2)) {
+colnames(test_2)[i] <- as.character(test_2[1,i])
+test_2[1,i] <- NA
+print(paste0("progress: ", i, "/", ncol(test_2)))
+}
+
+test_3 <- gather(test_2, key = "score")
+test_3 <- na.omit(test_3)
 ```
 
+I did it! It is in the right format! I can start the analysis on it tomorrow.
 
 ```{r}
 # result <- 0
