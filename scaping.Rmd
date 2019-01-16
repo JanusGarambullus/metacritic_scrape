@@ -124,7 +124,20 @@ rownames(dataset) <- 1:length(dataset$title)
 ```
 
 ```{r}
+test <- critic_score_loop_output
+maxes <- vector("numeric", length(all_links_reviews))
 
+for (i in 1:length(all_links_reviews)) {
+test[[i]] <- Kmisc::pad(test[[i]], maxes)
+}
+
+max(maxes)
+
+for (i in length(all_links_reviews)) {
+  
+}
+
+test_1 <- do.call(cbind.data.frame, critic_score_loop_output)
 ```
 
 
