@@ -7,18 +7,51 @@ output: html_notebook
 
 ## Introduction
 
-As a Film enthusiast, I am always on the lookout for the next potential title to watch. For every amazing film, there are many bad ones. This is where film review sites come in handy. In our fast-paced life we don't have time to watch every single movie and we might miss amazing ones that we never even thought about watching before. This is where film review sites come in handy...
+As a Film enthusiast, I am always on the lookout for the next potential title to watch. For every amazing film, there are many bad ones. This is where film review sites come in handy. In our fast-paced life we don't have time to watch every single movie and we might miss amazing ones that we never even thought about watching before.
 
 However, the data analyst in me finds the filtering function of these sites lacking. Wouldn't it be amazing to filter films based on multiple criteria at the same time? For example, I am looking for a Sci-fi film made between 2000 and 2005 that has a minimum Metascore of 65 and contains the keyword 'robot' in the description? 
 
 Alternatively, we might want to carry out in-depth analysis on what drives review scores and notice trends across years, genres and directors.
 
-To achieve this, we need to collect data on all of the variables mentioned above and place them in a nice and tidy tabular format.
-
-## The Scoop
+To achieve this, we need to collect data from the site and place them in a nice and tidy tabular format. As Metacritic doesn't provide an API, we'll have to resort to good old-fashioned web scraping. I'll be using the amazing R package: Rvest.
 
 The complete script without the filler text can be found on my Github:
 
 https://github.com/JanusGarambullus/metacritic_scrape
+## Time to get going
 
-First, let's load the packages...
+There are multiple hurdles we need to overcome when scraping the site. Firstly, the detailed data on each game is located under a separate URL.
+For example: https://www.metacritic.com/game/playstation-4/onimusha-warlords
+
+Therefore, we need to get the URL of each individual game to proceed. The following page contains these details: https://www.metacritic.com/browse/games/release-date/available/ps4/metascore.
+
+If you hover over each title, you can see the URL we need to scrape. However, there is still an issue, the titles are laid out over 10 pages. We could in theory manually scrape every single one, but the URL structure is quite logical:
+
+For example:
+https://www.metacritic.com/browse/games/release-date/available/ps4/metascore?page=0
+
+The 'page=' part at the end ranges from 0 to 9. We can write a loop around this to get the title URLs of every single page in one go.
+
+## The first loop
+
+First, let's futureproof the script. As new games are released, the number of pages containing the titles will increase. So let's read the number of pages we need to loop over.
+
+```{r}
+# Loading the required libraries
+library(tidyverse)
+library(rvest)
+library(lubridate)
+```
+
+If you are new to the process of using Rvest, check out my previous blog post where I focus on the mechanism of web scraping in more detail. This project is a step more complex than the IMDB scraping project. The basics can also be found on the page:
+
+
+
+```{r}
+# Read in the initial page
+page_initial <- read_html("https://www.metacritic.com/browse/games/release-date/available/ps4/metascore?page=0")
+
+# Scrape each page
+no_pages <- page_initial %>% html_nodes(".page_num") %>% html_text()
+```
+
