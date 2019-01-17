@@ -3,6 +3,16 @@ title: "Analysis"
 output: html_notebook
 ---
 
+```{r}
+scores <- scores %>% rename(title = score, score = value)
+scores$score <- as.numeric(scores$score)
+```
+
+```{r}
+scores %>% group_by(title) %>% summarise(mean = mean(score), sd = sd(score), n = n()) %>% filter(mean > 65) %>% arrange(desc(sd))
+```
+
+
 Questions: 
 
 Which studio produced the most games?
@@ -131,8 +141,6 @@ Nothing really pops out.
 
 Let's rank the years
 ```{r}
-dataset <- na.omit(dataset)
-
 dataset %>% mutate(year = year(release_date), month = month(release_date)) %>% filter() %>% group_by(year) %>% summarise(mean_score = mean(score), count = n())
 ```
 

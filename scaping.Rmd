@@ -151,19 +151,9 @@ print(paste0("progress: ", i, "/", ncol(test_2)))
 
 test_3 <- gather(test_2, key = "score")
 test_3 <- na.omit(test_3)
+
+scores <- test_3
 ```
 
-I did it! It is in the right format! I can start the analysis on it tomorrow.
-
-```{r}
-# result <- 0
-# for(i in 1:10){
-#   try({                # start code block
-#   result = result + i
-#   log("a")             # I do not care about this error
-#   result = result + i
-#   }, silent=TRUE)      # end of try function
-# }
-```
 
 
